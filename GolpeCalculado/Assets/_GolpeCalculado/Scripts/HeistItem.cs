@@ -14,15 +14,31 @@ namespace GolpeCalculado
         public int circuit;
         [Tooltip("Alcance do ruído que este objeto faz ao ser usado (portas ruidosas, caixa de fusíveis, caixa empurrável).")]
         public float noiseRange;
+        [Header("Animação da porta")]
+        [Tooltip("Duração da abertura/fecho em segundos (0 = instantâneo).")] public float openDuration=.6f;
+        public AnimationCurve openCurve=AnimationCurve.EaseInOut(0,0,1,1);
+        float animStart=-1; Vector3 animFromPosition; Quaternion animFromRotation;
         public string Prompt => kind == ItemKind.Door ? (opened ? "Fechar " : "Abrir ") + label : label;
         public void Initialize() { closedPosition=transform.position; closedRotation=transform.rotation; }
-        public void SetOpen(bool value)
+        Vector3 TargetPosition=>opened?openPosition:closedPosition;
+        Quaternion TargetRotation=>closedRotation*Quaternion.Euler(0,opened?100:0,0);
+        // Sem animação: usado ao restaurar checkpoints e nos testes.
+        public void SetOpen(bool value)=>SetOpen(value,false);
+        public void SetOpen(bool value,bool animate)
         {
             opened=value;
-            if(canSlide) transform.position=value?openPosition:closedPosition;
-            else transform.rotation=closedRotation*Quaternion.Euler(0,value?100:0,0);
+            if(animate&&openDuration>0){animStart=Time.time;animFromPosition=transform.position;animFromRotation=transform.rotation;}
+            else{animStart=-1;if(canSlide)transform.position=TargetPosition;else transform.rotation=TargetRotation;}
             var obstacle=GetComponent<UnityEngine.AI.NavMeshObstacle>();
             if(obstacle!=null) obstacle.enabled=!value;
+        }
+        void Update()
+        {
+            if(animStart<0)return;
+            float t=Mathf.Clamp01((Time.time-animStart)/openDuration),k=openCurve.Evaluate(t);
+            if(canSlide)transform.position=Vector3.LerpUnclamped(animFromPosition,TargetPosition,k);
+            else transform.rotation=Quaternion.SlerpUnclamped(animFromRotation,TargetRotation,k);
+            if(t>=1)animStart=-1;
         }
         public void Use(HeistGame game)
         {
@@ -30,7 +46,7 @@ namespace GolpeCalculado
             switch(kind)
             {
                 case ItemKind.Door:
-                    SetOpen(!opened); game.Tone(noisy?180:340);
+                    SetOpen(!opened,true); game.Tone(noisy?180:340);
                     if(noisy) { game.Noise(transform.position,noiseRange); game.Discover("ruido","As portas metálicas e os objetos lançados desviam a ronda para a origem do som."); }
                     break;
                 case ItemKind.Key: case ItemKind.Tool: case ItemKind.Fuse:

@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 
 namespace GolpeCalculado
 {
+    [Serializable] public class ToneSound { public string name; [Tooltip("Identificador usado no código (frequência do tom original).")] public float hz; public AudioClip clip; }
     [Serializable] public class ItemSnapshot { public string id; public bool used,open; public Vector3 position; }
     [Serializable] public class HeistSnapshot
     {
@@ -31,6 +32,10 @@ namespace GolpeCalculado
         [Tooltip("Acima desta velocidade (m/s) os passos fazem ruído.")] public float footstepNoiseSpeed=4;
         public float footstepNoiseInterval=.9f; public float footstepNoiseRange=8;
         [Tooltip("Alcance para usar objetos e entrar na carrinha.")] public float interactDistance=2.7f;
+        [Header("Som")]
+        [Tooltip("Fonte 2D que toca as respostas sonoras.")] public AudioSource effects;
+        [Range(0,1)] public float effectsVolume=.6f;
+        [Tooltip("Som de cada resposta. O código pede-os pelo número (hz).")] public ToneSound[] sounds;
         [Header("Carrinha e esconderijo")]
         [Tooltip("Distância máxima à traseira da carrinha para carregar a mala.")] public float loadDistance=3;
         [Tooltip("Raio do esconderijo onde a carrinha tem de parar para vencer.")] public float hideoutRadius=6;
@@ -96,9 +101,9 @@ namespace GolpeCalculado
         public void ReadDocument(string id,string label,string text){Take(id);Notes[id]=text;documentTitle=label;documentText=text;previous=Page.Pause;Show(Page.Document);Tone(580);}
         public void Tone(float hz)
         {
-            var clip=AudioClip.Create("Resposta",2205,1,22050,false);var data=new float[2205];
-            for(int i=0;i<data.Length;i++)data[i]=Mathf.Sin(2*Mathf.PI*hz*i/22050)*.12f*(1-(float)i/data.Length);
-            clip.SetData(data,0);AudioSource.PlayClipAtPoint(clip,player.view.transform.position,.6f);Destroy(clip,1);
+            var sound=sounds?.FirstOrDefault(s=>Mathf.Approximately(s.hz,hz));
+            if(sound==null||sound.clip==null||effects==null){Debug.LogWarning("Sem som para "+hz+" Hz");return;}
+            effects.PlayOneShot(sound.clip,effectsVolume);
         }
         public void Noise(Vector3 position,float range){if(Vector3.Distance(guard.transform.position,position)<range)guard.Investigate(position);}
         public void ToggleCircuit(int index)
@@ -116,7 +121,7 @@ namespace GolpeCalculado
         {
             if(value!=vaultCode){pin="";Say("Código incorreto. Lê a ordem de expedição e os três registos.");Tone(130);return false;}
             if(!VaultPower)return false;
-            VaultOpen=true;Take("vaultAccess");vaultDoor.SetOpen(true);Show(Page.Play);Say("Arquivo aberto. Identifica e recupera a mala NC-17.");Tone(800);return true;
+            VaultOpen=true;Take("vaultAccess");vaultDoor.SetOpen(true,true);Show(Page.Play);Say("Arquivo aberto. Identifica e recupera a mala NC-17.");Tone(800);return true;
         }
         public void PickCase(HeistItem item)
         {

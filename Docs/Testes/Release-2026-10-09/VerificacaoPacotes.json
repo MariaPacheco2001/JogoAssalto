@@ -1,0 +1,24 @@
+{
+  "mac_architectures": [
+    "x86_64",
+    "arm64"
+  ],
+  "mac_minimum_os": "12.0",
+  "mac_execution_tested": false,
+  "packages": [
+    {
+      "archive": "Golpe-Calculado-Windows.zip",
+      "files": 157,
+      "bytes": 35944957,
+      "sha256": "8a4509cd1e5f852287d369bad2cc5cc5ce67a154fea1a042bc814d2ca973c7be",
+      "content_and_permissions_verified": true
+    },
+    {
+      "archive": "Golpe-Calculado-macOS-Universal.zip",
+      "files": 158,
+      "bytes": 43375467,
+      "sha256": "87c89933924c0acbd1907fbbbc9b66870b3d378cf1b8a9277f0a40eb303d54c8",
+      "content_and_permissions_verified": true
+    }
+  ]
+}

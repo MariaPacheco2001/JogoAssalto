@@ -1,0 +1,19 @@
+PASS Menu inicial suspende simulação
+PASS Movimento a pé distância=3,49 tempo=1,03 posição=(-6.49, 0.05, -23.10)
+PASS Agachar reduz cápsula
+PASS Levantar restaura cápsula
+PASS Salto altura=0,76
+PASS Entrar junto à porta com linha de visão
+PASS Exclusão dos controlos a pé na carrinha
+PASS Aceleração e rodas em contacto
+PASS Saída impedida em movimento
+PASS Pausa congela carrinha e áudio
+PASS Direção altera trajetória
+PASS Travão de serviço imobiliza
+PASS Marcha atrás
+PASS Lugar de estacionamento alinhado e travão aplicado
+PASS Saída alternativa quando porta esquerda bloqueada
+PASS Regresso a pé e conclusão do percurso
+PASS Reentrada após estacionamento
+PASS Duas saídas bloqueadas mantêm condutor seguro
+PASS Saída recupera após remoção dos obstáculos

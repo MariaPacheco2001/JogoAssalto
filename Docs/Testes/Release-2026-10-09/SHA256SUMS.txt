@@ -1,0 +1,2 @@
+8a4509cd1e5f852287d369bad2cc5cc5ce67a154fea1a042bc814d2ca973c7be  Golpe-Calculado-Windows.zip
+87c89933924c0acbd1907fbbbc9b66870b3d378cf1b8a9277f0a40eb303d54c8  Golpe-Calculado-macOS-Universal.zip

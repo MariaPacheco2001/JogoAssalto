@@ -1,0 +1,44 @@
+namespace GolpeCalculado
+{
+    public sealed partial class HeistGame
+    {
+        Page confirmationReturn;
+        int selectedCheckpoint;
+        public void RequestNewGame()
+        {
+            if(LatestSave()>0)Confirm("novo");else Show(Page.Briefing);
+        }
+        public bool RequestCheckpoint(int cp)
+        {
+            if(!HasSave(cp)){Say("Esse checkpoint não está disponível.");return false;}
+            selectedCheckpoint=cp;
+            if(Current!=Page.Menu||cp<LatestSave()){Confirm("selecionar");return true;}
+            return LoadCheckpoint(cp);
+        }
+        public void RequestRestartCheckpoint(){if(LatestSave()>0)Confirm("checkpoint");}
+        public void RequestRestartMission()=>Confirm("missao");
+        public void RequestMainMenu()=>Confirm("menu");
+        void Confirm(string action){confirm=action;confirmationReturn=Current;Show(Page.Confirm);}
+        public void CancelConfirmation(){Show(confirmationReturn);}
+        public void AcceptConfirmation()
+        {
+            if(Current!=Page.Confirm)return;
+            if(confirm=="novo"||confirm=="missao")
+            {
+                if(!ClearProgress())return;
+                if(confirm=="novo")Show(Page.Briefing);else Begin();
+            }
+            else if(confirm=="checkpoint")LoadCheckpoint(LatestSave());
+            else if(confirm=="selecionar")LoadCheckpoint(selectedCheckpoint);
+            else Show(Page.Menu);
+        }
+        public void Back()
+        {
+            if(Current==Page.Confirm){CancelConfirmation();return;}
+            if(Current==Page.Play)Show(Page.Pause);
+            else if(Current==Page.Pause)Show(Page.Play);
+            else if(Current==Page.Briefing)Show(Page.Menu);
+            else if(Current!=Page.Menu&&Current!=Page.Victory&&Current!=Page.Defeat)Show(previous==Page.Menu?Page.Menu:Page.Pause);
+        }
+    }
+}

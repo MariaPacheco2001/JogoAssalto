@@ -1,0 +1,85 @@
+﻿GOLPE CALCULADO — RITA E MARIA
+Versão de teste para Windows 64 bits | 9 de outubro de 2026
+
+COMO COMEÇAR — 3 PASSOS
+
+1. Clica com o botão direito no ficheiro ZIP e escolhe «Extrair Tudo...».
+   Escolhe uma pasta e clica em «Extrair».
+
+2. Abre a pasta extraída «Golpe Calculado» e faz duplo clique em
+   «GolpeCalculado.exe» (pode aparecer apenas como «GolpeCalculado»).
+
+3. No jogo, escolhe «Novo jogo» e depois «Começar o assalto».
+
+Não é preciso instalar Unity, criar conta ou aceder ao GitHub.
+O jogo funciona sem ligação à Internet. Usa teclado e rato.
+Extrai sempre o ZIP inteiro: o executável precisa das pastas e dos
+ficheiros que estão ao lado dele. Não o movas sozinho para outra pasta.
+
+O TEU OBJETIVO
+
+Recupera a mala NC-17 num armazém vigiado, leva-a à traseira da carrinha
+e conduz de volta ao esconderijo onde começaste. Para concluir, para
+a carrinha no esconderijo com a mala carregada.
+
+Observa os acessos, recolhe objetos e lê os documentos. O objetivo atual
+aparece no ecrã e a tecla J abre as pistas que já descobriste.
+
+CONTROLOS A PÉ
+
+W / A / S / D     Andar
+Rato             Olhar
+Shift            Correr
+Ctrl (manter)    Agachar
+Espaço           Saltar
+E                Interagir: apanhar, ler, abrir, entrar na carrinha
+Q                Pousar a mala
+G                Lançar uma garrafa previamente recolhida
+J                Abrir o diário de pistas
+Esc              Abrir a pausa / retomar
+
+Para interagir, aproxima-te e aponta para o objeto até aparecer o aviso.
+Para carregar a mala, leva-a à traseira da carrinha e prime E.
+
+CONTROLOS DA CARRINHA
+
+Espaço           Soltar / aplicar o travão de mão
+W                Acelerar
+S                Travar; depois de parar, fazer marcha-atrás
+A / D            Virar
+Shift            Travar
+E                Sair, com a carrinha parada e uma saída desimpedida
+Esc              Abrir a pausa / retomar
+
+IMPORTANTE: ao entrar, prime Espaço para soltar o travão de mão.
+
+GUARDAR E CONTINUAR
+
+O jogo guarda automaticamente em três checkpoints durante a missão.
+Depois de chegares ao primeiro, podes usar «Continuar» no menu inicial.
+Ao sair, podes perder o que fizeste depois do último checkpoint.
+As gravações ficam no teu utilizador do Windows; não estão incluídas
+neste ZIP. Uma nova pessoa começa sem as partidas de quem enviou o jogo.
+
+SE ALGUMA COISA NÃO FUNCIONAR
+
+- O teclado não responde: clica dentro da janela do jogo.
+- A carrinha não anda: prime Espaço para soltar o travão de mão.
+- Não consegues sair: para completamente e deixa espaço ao lado da carrinha.
+- Falta um ficheiro ou DLL: extrai novamente o ZIP inteiro. Não descarregues
+  DLLs avulsas de sites da Internet.
+- O jogo não abre: confirma que estás num PC Windows 64 bits. Envia à Rita
+  ou à Maria uma captura da mensagem apresentada e o modelo do computador.
+
+SOBRE ESTA VERSÃO
+
+É um protótipo jogável: o aspeto visual, os sons e as animações ainda estão
+em desenvolvimento. A duração-alvo é de 12 minutos de jogo efetivo e ainda
+precisa de ser confirmada com pessoas que não conhecem o jogo.
+
+Depois de jogar, diz à Rita ou à Maria:
+- Quanto tempo demoraste e se conseguiste concluir.
+- Onde ficaste sem saber o que fazer.
+- Se encontraste algum erro e o que fizeste imediatamente antes.
+
+Bom jogo!

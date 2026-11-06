@@ -1,0 +1,36 @@
+PASS Menu inicial pausa simulação
+PASS Identificadores de objetos únicos
+PASS Vigilante colocado na navegação
+PASS Entrada de cargas exige ferramenta
+PASS Ferramenta pode ser apontada e selecionada por raio de interação; alvo=crowbar
+PASS Pé-de-cabra recolhido permite entrada
+PASS Entrada alternativa abre com chave de serviço
+PASS CP1 criado após entrada
+PASS Escritório fechado sem chave
+PASS Chave do escritório abre acesso
+PASS Documentos recolhidos e diário atualizado
+PASS Terminal não abre sem energia
+PASS Fusível instala alimentação auxiliar
+PASS Código errado não abre arquivo
+PASS Código dos documentos abre arquivo
+PASS Percurso navegável entre entrada de cargas e arquivo aberto
+PASS Percurso navegável entre entrada de serviço e arquivo aberto
+PASS Quadro desliga iluminação da zona
+PASS Quadro pode voltar a ligar
+PASS Ruído comunica origem ao vigilante
+PASS Vigilante vê jogador exposto e inicia perseguição
+PASS Perda de visão inicia procura na última posição observada
+PASS CP2 criado no interior
+PASS Mala recuperada ativa alarme e CP3
+PASS Mala reduz velocidade
+PASS Mala impede lançamento
+PASS Pousar mala restaura ações
+PASS Mala pousada pode ser recuperada
+PASS Checkpoint pode ser restaurado
+PASS Checkpoint restaura mala chaves pistas e circuitos
+PASS Não duplica a mala
+PASS Pausa suspende vigilante e áudio
+PASS Mala carregada na carrinha
+PASS Entrada no veículo para extração
+PASS Entrega da mala no esconderijo vence missão
+PASS Captura apresenta derrota

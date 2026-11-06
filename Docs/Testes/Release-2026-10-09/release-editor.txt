@@ -1,0 +1,84 @@
+PASS Menu inicial pausa simulação
+PASS Identificadores de objetos únicos
+PASS Vigilante colocado na navegação
+PASS Entrada de cargas exige ferramenta
+PASS Ferramenta pode ser apontada e selecionada por raio de interação; alvo=crowbar
+PASS Pé-de-cabra recolhido permite entrada
+PASS Entrada alternativa abre com chave de serviço
+PASS CP1 criado após entrada
+PASS Escritório fechado sem chave
+PASS Chave do escritório abre acesso
+PASS Documentos recolhidos e diário atualizado
+PASS Terminal não abre sem energia
+PASS Fusível instala alimentação auxiliar
+PASS Código errado não abre arquivo
+PASS Código dos documentos abre arquivo
+PASS Percurso navegável entre entrada de cargas e arquivo aberto
+PASS Percurso navegável entre entrada de serviço e arquivo aberto
+PASS Quadro desliga iluminação da zona
+PASS Quadro pode voltar a ligar
+PASS Ruído comunica origem ao vigilante
+PASS Vigilante vê jogador exposto e inicia perseguição
+PASS Perda de visão inicia procura na última posição observada
+PASS CP2 criado no interior
+PASS Mala recuperada ativa alarme e CP3
+PASS Mala reduz velocidade
+PASS Mala impede lançamento
+PASS Pousar mala restaura ações
+PASS Mala pousada pode ser recuperada
+PASS Checkpoint pode ser restaurado
+PASS Checkpoint restaura mala chaves pistas e circuitos
+PASS Não duplica a mala
+PASS Pausa suspende vigilante e áudio
+PASS Mala carregada na carrinha
+PASS Entrada no veículo para extração
+PASS Entrega da mala no esconderijo vence missão
+PASS Captura apresenta derrota
+PASS #35 #36 Rejeita JSON truncado sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita campos em falta sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita valor nulo sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita versão desconhecida sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita checkpoint diferente do ficheiro sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita inventário ausente sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita inventário duplicado sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita pistas desalinhadas sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita circuitos incompletos sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita objetos ausentes sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita ID duplicado sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita ID desconhecido sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita mala carregada e transportada sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita rotação inválida sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Rejeita posição fora dos limites sem alterar sessão e conserva CP2 válido
+PASS #35 #36 Gravação ausente não bloqueia sessão
+PASS #35 Gravação válida recupera após casos inválidos
+PASS #38 Novo jogo pede confirmação com progresso
+PASS #38 Cancelar Novo jogo preserva ficheiro e mundo
+PASS #37 Selecionar CP1 pede confirmação antes de abandonar CP3
+PASS #37 Esc cancela seleção e regressa à lista
+PASS #37 Confirmar seleção restaura CP1
+PASS #37 Checkpoint inexistente recusado
+PASS #38 Cancelar reinício conserva progresso
+PASS #38 Cancelar regresso ao menu mantém pausa
+PASS #38 Regresso ao menu conserva checkpoints
+PASS #38 Confirmar Novo jogo substitui gravações e abre briefing
+PASS #22 Novo jogo repõe objetos inventário circuitos e objetivo
+PASS #37 CP3 indisponível numa partida nova
+PASS #22 Novo jogo antes de CP1 não reutiliza sessão abandonada
+PASS #25 Seleção de objeto baixo ignora a cápsula do jogador
+PASS #25 Parede bloqueia interação com objeto
+PASS #25 Objeto fora do alcance não é selecionado
+PASS #27 Porta explica chave em falta
+PASS #27 Chave diferente não abre escritório
+PASS #27 Chave única abre acesso correto
+PASS #27 Checkpoint restaura chave sem a duplicar
+PASS #18 Limitação de lançamento explica como recuperar a ação
+PASS #19 Frente da carrinha não aceita carga
+PASS #19 Traseira carrega a mala e remove objeto transportado
+PASS #19 Repetir carga não duplica a mala
+PASS #19 Carga mantém-se ao entrar no veículo
+PASS #23 Pausa durante condução congela veículo vigilante tempo ativo e áudio
+PASS #23 Retoma recupera simulação e áudio
+PASS #19 Carga mantém-se ao sair do veículo
+PASS #38 Cancelar reinício de checkpoint preserva sessão
+PASS #38 Confirmar reinício recupera CP3
+PASS #38 Confirmar reinício de missão repõe mundo e remove checkpoints

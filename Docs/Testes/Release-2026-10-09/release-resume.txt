@@ -1,0 +1,4 @@
+PASS Gravação CP3 disponível numa nova execução
+PASS Continuar lê CP3 do disco
+PASS Continuar restaura mala e inventário
+PASS Continuar restaura cofre energia e alarme

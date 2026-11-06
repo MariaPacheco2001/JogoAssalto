@@ -1,0 +1,29 @@
+# Unity generated data
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Rr]ecordings/
+[Bb]uild/
+[Bb]uilds/
+.vs/
+.idea/
+*.csproj
+*.sln
+*.slnx
+*.user
+*.pidb
+*.booproj
+*.opendb
+*.VC.db
+.DS_Store
+Thumbs.db
+sysinfo.txt
+# Local course references
+Materiais Moodle/
+ScopeDocument.docx
+
+# Cópia de segurança do ZIP original
+_original/

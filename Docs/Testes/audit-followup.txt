@@ -1,0 +1,52 @@
+PASS #13 Fase inicial coerente
+PASS #13 Mala recusada antes de abrir arquivo
+PASS #13 Carga e terminal recusam acoes antecipadas
+PASS #20 Chegada sem mala nao vence
+PASS #13 Entrada muda progresso e objetivo
+PASS #13 Arquivo aberto muda objetivo
+PASS #30 Snapshot versionado inclui todos os objetos com IDs unicos
+PASS #30 Snapshot inclui chaves portas circuitos e progresso
+PASS #30 Snapshot inclui jogador mala e carrinha
+PASS #13 Repetir recolha nao recria checkpoint nem duplica mala
+PASS #13 #33 Recolha cria CP3 e fase de extracao
+PASS #33 Mala pode ser pousada antes do restauro
+PASS #33 Restauro depois de pousar recupera posse inequivoca
+PASS #30 #33 Restauro transportando mala repoe vigilante no estado definido
+PASS #33 Reaparecimento nao fica em alcance de captura nem visao imediata
+PASS #34 Restauro apos alterar portas inventario pistas circuitos e eventos
+PASS #34 Jogador mala portas chaves circuitos objetivo e alarme restaurados
+PASS #34 Eventos transitorios e investigacao eletrica pendente eliminados
+PASS #34 Mala unica apos varios restauros
+PASS #54 Diario restaurado integralmente do disco
+PASS #54 Pistas disponiveis durante pausa
+PASS #45 Circuito 0 desliga luzes e indicador da camara juntos
+PASS #45 Restauro conserva circuito desligado 0
+PASS #45 Religacao recupera luz e camara 0
+PASS #53 Alarme de reserva mantem-se independente do circuito 0
+PASS #45 Circuito 1 desliga luzes e indicador da camara juntos
+PASS #45 Restauro conserva circuito desligado 1
+PASS #45 Religacao recupera luz e camara 1
+PASS #53 Alarme de reserva mantem-se independente do circuito 1
+PASS #53 Silenciar desliga indicadores do alarme
+PASS #53 Restauro recupera alarme ativo
+PASS #21 #39 Derrota suspende comandos e audio e liberta cursor, tentativa 0
+PASS #21 Captura repetida nao altera derrota
+PASS #21 #39 Reinicio devolve controlo e CP3
+PASS #21 #39 Derrota suspende comandos e audio e liberta cursor, tentativa 1
+PASS #21 Captura repetida nao altera derrota
+PASS #21 #39 Reinicio devolve controlo e CP3
+PASS #21 #39 Derrota suspende comandos e audio e liberta cursor, tentativa 2
+PASS #21 Captura repetida nao altera derrota
+PASS #21 #39 Reinicio devolve controlo e CP3
+PASS #50 Visao rejeita jogador fora do alcance
+PASS #50 Visao rejeita jogador atras do vigilante
+PASS #50 Visao aceita jogador exposto dentro do cone
+PASS #50 Parede bloqueia visao dentro do cone
+PASS #50 Deteccao a distancia inicia perseguicao sem derrota
+PASS #23 #50 Pausa congela perseguicao posicao alvo e temporizador
+PASS #50 Fuga por cobertura quebra visao e conserva ultima posicao
+PASS #13 Carga muda objetivo para regresso
+PASS #20 #39 Entrega confirma vitoria e repoe cursor e audio
+PASS #20 Chegada repetida conserva vitoria unica
+PASS #39 Regresso ao menu preserva progresso
+PASS #13 #54 Reinicio repoe fase inicial e diario sem solucoes

@@ -19,6 +19,21 @@ namespace GolpeCalculado
         public PlayerMotor player; public VanMotor van; public HeistGuard guard;
         public HeistItem caseItem,vaultDoor; public Transform hideout; public Light[] circuitBLights,circuitCLights,alarmLights;
         public Vector3 guardResetPosition;
+        [Header("Cofre e checkpoints")]
+        [Tooltip("Código do terminal do arquivo (TURNO + CAIS + DIA).")] public string vaultCode="020713";
+        [Tooltip("Caixa (Is Trigger) que guarda o CP1 quando o jogador entra no armazém.")] public BoxCollider checkpoint1Zone;
+        [Tooltip("Caixa (Is Trigger) que guarda o CP2 quando o jogador entra no interior com a chave do escritório.")] public BoxCollider checkpoint2Zone;
+        [Header("Distração")]
+        [Tooltip("Prefab da garrafa lançada com G.")] public Rigidbody thrownBottlePrefab;
+        public float throwSpeed=11; public float throwLift=2;
+        [Header("Jogador")]
+        [Tooltip("Multiplicador da velocidade enquanto carrega a mala.")] public float carrySpeedMultiplier=.62f;
+        [Tooltip("Acima desta velocidade (m/s) os passos fazem ruído.")] public float footstepNoiseSpeed=4;
+        public float footstepNoiseInterval=.9f; public float footstepNoiseRange=8;
+        [Tooltip("Alcance para usar objetos e entrar na carrinha.")] public float interactDistance=2.7f;
+        [Header("Carrinha e esconderijo")]
+        [Tooltip("Distância máxima à traseira da carrinha para carregar a mala.")] public float loadDistance=3;
+        [Tooltip("Raio do esconderijo onde a carrinha tem de parar para vencer.")] public float hideoutRadius=6;
         public bool[] Circuits={true,true};
         public bool VaultPower,VaultOpen,CarryingCase,CaseLoaded,CaseRecovered,HasThrowable,Alarm;
         public bool TestMode;
@@ -99,7 +114,7 @@ namespace GolpeCalculado
         public void OpenKeypad(HeistItem item){pin="";previous=Page.Pause;Show(Page.Keypad);}
         public bool SubmitPin(string value)
         {
-            if(value!="020713"){pin="";Say("Código incorreto. Lê a ordem de expedição e os três registos.");Tone(130);return false;}
+            if(value!=vaultCode){pin="";Say("Código incorreto. Lê a ordem de expedição e os três registos.");Tone(130);return false;}
             if(!VaultPower)return false;
             VaultOpen=true;Take("vaultAccess");vaultDoor.SetOpen(true);Show(Page.Play);Say("Arquivo aberto. Identifica e recupera a mala NC-17.");Tone(800);return true;
         }
@@ -111,7 +126,7 @@ namespace GolpeCalculado
             CarryingCase=true;caseItem=item;
             var col=item.GetComponent<Collider>();if(col!=null)col.enabled=false;
             item.transform.SetParent(player.view.transform,false);item.transform.localPosition=new Vector3(.42f,-.55f,.9f);item.transform.localRotation=Quaternion.identity;
-            player.SpeedMultiplier=.62f;
+            player.SpeedMultiplier=carrySpeedMultiplier;
             if(!CaseRecovered){CaseRecovered=true;SetAlarm(true);Discover("caseAlarm","O sensor da mala usa alimentação de reserva. Desligar as luzes não impede o alarme de extração.");SaveCheckpoint(3);}
             Say("Mala recuperada. Q para pousar. Não podes lançar objetos enquanto a transportas.");
         }
@@ -127,10 +142,10 @@ namespace GolpeCalculado
         public bool LoadCase()
         {
             if(!CarryingCase){Say(CaseLoaded?"A mala já está carregada.":"Traz a mala até à traseira da carrinha.");return false;}
-            if(Vector3.Distance(player.transform.position,van.transform.TransformPoint(new Vector3(0,0,-2.6f)))>3){Say("Aproxima-te da traseira da carrinha.");return false;}
+            if(Vector3.Distance(player.transform.position,van.transform.TransformPoint(new Vector3(0,0,-2.6f)))>loadDistance){Say("Aproxima-te da traseira da carrinha.");return false;}
             CarryingCase=false;CaseLoaded=true;player.SpeedMultiplier=1;caseItem.transform.SetParent(null);caseItem.gameObject.SetActive(false);Say("Mala carregada. Entra e regressa ao esconderijo, onde começaste.");Tone(900);return true;
         }
-        public bool CanEnter()=>!InVan&&!CarryingCase&&van.SpeedKmh<1&&Vector3.Distance(player.transform.position,van.entry.position)<2.3f&&Physics.Raycast(player.view.transform.position,player.view.transform.forward,out var hit,2.7f,~0,QueryTriggerInteraction.Ignore)&&hit.transform.IsChildOf(van.transform);
+        public bool CanEnter()=>!InVan&&!CarryingCase&&van.SpeedKmh<1&&Vector3.Distance(player.transform.position,van.entry.position)<2.3f&&Physics.Raycast(player.view.transform.position,player.view.transform.forward,out var hit,interactDistance,~0,QueryTriggerInteraction.Ignore)&&hit.transform.IsChildOf(van.transform);
         public bool EnterVan()
         {
             if(!CanEnter())return false;player.controlled=false;player.Body.enabled=false;
@@ -152,10 +167,11 @@ namespace GolpeCalculado
             }
             Say("Saídas bloqueadas. Afasta a carrinha dos obstáculos.");return false;
         }
+        static bool Inside(BoxCollider zone,Vector3 p){var local=zone.transform.InverseTransformPoint(p)-zone.center;var half=zone.size*.5f;return Mathf.Abs(local.x)<half.x&&Mathf.Abs(local.y)<half.y&&Mathf.Abs(local.z)<half.z;}
         public void Captured(){if(Current!=Page.Play||TestMode)return;Show(Page.Defeat);}
         public HeistItem Target()
         {
-            foreach(var hit in Physics.RaycastAll(player.view.transform.position,player.view.transform.forward,2.7f,~0,QueryTriggerInteraction.Ignore).OrderBy(h=>h.distance))
+            foreach(var hit in Physics.RaycastAll(player.view.transform.position,player.view.transform.forward,interactDistance,~0,QueryTriggerInteraction.Ignore).OrderBy(h=>h.distance))
             {
                 if(hit.transform.IsChildOf(player.transform))continue;
                 return hit.collider.GetComponentInParent<HeistItem>();
@@ -167,9 +183,9 @@ namespace GolpeCalculado
             if(!HasThrowable||CarryingCase){Say(CarryingCase?"Pousa a mala primeiro.":"Procura uma garrafa para lançar.");return false;}
             var position=player.view.transform.position+player.view.transform.forward*.65f;
             if(Physics.CheckSphere(position,.12f,~0,QueryTriggerInteraction.Ignore)){Say("Não há espaço livre para lançar.");return false;}
-            var bottle=GameObject.CreatePrimitive(PrimitiveType.Sphere);bottle.name="Distração lançada";bottle.transform.position=position;bottle.transform.localScale=Vector3.one*.16f;
-            var rb=bottle.AddComponent<Rigidbody>();rb.mass=.3f;rb.collisionDetectionMode=CollisionDetectionMode.ContinuousDynamic;rb.linearVelocity=player.view.transform.forward*11+Vector3.up*2;
-            bottle.AddComponent<ThrownNoise>().game=this;HasThrowable=false;return true;
+            var rb=Instantiate(thrownBottlePrefab,position,Quaternion.identity);rb.name=thrownBottlePrefab.name;
+            rb.linearVelocity=player.view.transform.forward*throwSpeed+Vector3.up*throwLift;
+            rb.GetComponent<ThrownNoise>().game=this;HasThrowable=false;return true;
         }
         void Update()
         {
@@ -185,12 +201,12 @@ namespace GolpeCalculado
             if(!InVan)
             {
                 var p=player.transform.position;
-                if(Checkpoint<1&&p.x>12&&p.x<61&&p.z>0&&p.z<63)SaveCheckpoint(1);
-                if(Checkpoint<2&&Has("officeKey")&&p.x>34&&p.z>25&&p.z<51)SaveCheckpoint(2);
-                if(player.Body.velocity.magnitude>4&&Time.time>stepNoise){stepNoise=Time.time+.9f;Noise(p,8);}
+                if(Checkpoint<1&&Inside(checkpoint1Zone,p))SaveCheckpoint(1);
+                if(Checkpoint<2&&Has("officeKey")&&Inside(checkpoint2Zone,p))SaveCheckpoint(2);
+                if(player.Body.velocity.magnitude>footstepNoiseSpeed&&Time.time>stepNoise){stepNoise=Time.time+footstepNoiseInterval;Noise(p,footstepNoiseRange);}
                 if(p.y<-8){Show(Page.Defeat);Say("Saíste da área segura.");}
             }
-            if(CaseLoaded&&InVan&&Vector3.Distance(van.transform.position,hideout.position)<6&&van.SpeedKmh<1)Show(Page.Victory);
+            if(CaseLoaded&&InVan&&Vector3.Distance(van.transform.position,hideout.position)<hideoutRadius&&van.SpeedKmh<1)Show(Page.Victory);
         }
     }
 }

@@ -124,7 +124,7 @@ namespace GolpeCalculado
             {
                 CarryingCase=true;caseItem.GetComponent<Collider>().enabled=false;
                 caseItem.transform.SetParent(player.view.transform,false);caseItem.transform.localPosition=new Vector3(.42f,-.55f,.9f);
-                caseItem.transform.localRotation=Quaternion.identity;player.SpeedMultiplier=.62f;
+                caseItem.transform.localRotation=Quaternion.identity;player.SpeedMultiplier=carrySpeedMultiplier;
             }
             Checkpoint=s.checkpoint;ActiveSeconds=s.seconds;cabinYaw=cabinPitch=0;stepNoise=0;
             guard.ResetGuard(guardResetPosition);ApplyCircuits();Physics.SyncTransforms();

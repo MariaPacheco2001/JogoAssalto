@@ -1564,6 +1564,7 @@ MonoBehaviour:
   closedRotation: {x: 0, y: 0, z: 0, w: 0}
   canSlide: 0
   circuit: 0
+  noiseRange: 0
 --- !u!23 &230184059
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2293,6 +2294,59 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 156667893119568578, guid: 805ea319fc6626e4585180b50a4f2731, type: 3}
   m_PrefabInstance: {fileID: 5950533818054264857}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &310904621
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 310904622}
+  - component: {fileID: 310904623}
+  m_Layer: 0
+  m_Name: "Zona CP1 \u2014 entrada no armaz\xE9m"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &310904622
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310904621}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 727956577}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &310904623
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 310904621}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 49, y: 110, z: 63}
+  m_Center: {x: 36.5, y: 45, z: 31.5}
 --- !u!1 &322539465
 GameObject:
   m_ObjectHideFlags: 0
@@ -2726,6 +2780,7 @@ MonoBehaviour:
   closedRotation: {x: 0, y: 0, z: 0, w: 0}
   canSlide: 0
   circuit: 0
+  noiseRange: 10
 --- !u!23 &401482336
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -6270,6 +6325,7 @@ MonoBehaviour:
   closedRotation: {x: 0, y: 0, z: 0, w: 0}
   canSlide: 0
   circuit: 0
+  noiseRange: 0
 --- !u!114 &724454657
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6402,6 +6458,60 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 727768986}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &727956576
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 727956577}
+  - component: {fileID: 727956578}
+  m_Layer: 0
+  m_Name: Zonas de checkpoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &727956577
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 727956576}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 310904622}
+  - {fileID: 1162284917}
+  m_Father: {fileID: 1552164396}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &727956578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 727956576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshModifier
+  m_SerializedVersion: 0
+  m_OverrideArea: 0
+  m_Area: 0
+  m_OverrideGenerateLinks: 0
+  m_GenerateLinks: 0
+  m_IgnoreFromBuild: 1
+  m_ApplyToChildren: 1
+  m_AffectedAgents: ffffffffi
 --- !u!1 &728146600
 GameObject:
   m_ObjectHideFlags: 0
@@ -8426,6 +8536,7 @@ MonoBehaviour:
   closedRotation: {x: 0, y: 0, z: 0, w: 0}
   canSlide: 0
   circuit: 0
+  noiseRange: 0
 --- !u!23 &979627800
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -10494,6 +10605,59 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1158926622}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1162284915
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1162284917}
+  - component: {fileID: 1162284916}
+  m_Layer: 0
+  m_Name: "Zona CP2 \u2014 interior com chave do escrit\xF3rio"
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!65 &1162284916
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1162284915}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 56, y: 110, z: 26}
+  m_Center: {x: 62, y: 45, z: 38}
+--- !u!4 &1162284917
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1162284915}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 727956577}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1174961717
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11363,6 +11527,7 @@ MonoBehaviour:
   closedRotation: {x: 0, y: 0, z: 0, w: 0}
   canSlide: 0
   circuit: 0
+  noiseRange: 0
 --- !u!23 &1292916615
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -13622,6 +13787,7 @@ MonoBehaviour:
   closedRotation: {x: 0, y: 0, z: 0, w: 0}
   canSlide: 0
   circuit: 0
+  noiseRange: 0
 --- !u!23 &1485693634
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14244,6 +14410,7 @@ MonoBehaviour:
   closedRotation: {x: 0, y: 0, z: 0, w: 0}
   canSlide: 0
   circuit: 0
+  noiseRange: 0
 --- !u!23 &1544418994
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -14397,6 +14564,19 @@ MonoBehaviour:
   alarmLights:
   - {fileID: 795682282}
   guardResetPosition: {x: 24, y: 0.06, z: 34}
+  vaultCode: 020713
+  checkpoint1Zone: {fileID: 310904623}
+  checkpoint2Zone: {fileID: 1162284916}
+  thrownBottlePrefab: {fileID: 7387422477812624087, guid: bdc402b37ff2cce4391d7a1c6b212ef1, type: 3}
+  throwSpeed: 11
+  throwLift: 2
+  carrySpeedMultiplier: 0.62
+  footstepNoiseSpeed: 4
+  footstepNoiseInterval: 0.9
+  footstepNoiseRange: 8
+  interactDistance: 2.7
+  loadDistance: 3
+  hideoutRadius: 6
   Circuits: 0101y
   VaultPower: 0
   VaultOpen: 0
@@ -14418,7 +14598,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 727956577}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1590921418
@@ -16245,6 +16426,17 @@ MonoBehaviour:
   - {fileID: 1134482326}
   - {fileID: 1792744161}
   indicator: {fileID: 2081109493}
+  visionRange: 15
+  crouchDarkRange: 6
+  visionAngle: 55
+  eyeHeight: 1.55
+  catchDistance: 1.2
+  patrolSpeed: 1.8
+  investigateSpeed: 2.5
+  chaseSpeed: 4.3
+  investigateTime: 14
+  searchTime: 18
+  lostSightDelay: 1.1
 --- !u!195 &1777836211
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -16443,6 +16635,7 @@ MonoBehaviour:
   closedRotation: {x: 0, y: 0, z: 0, w: 0}
   canSlide: 0
   circuit: 0
+  noiseRange: 0
 --- !u!23 &1797418894
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -19342,6 +19535,7 @@ MonoBehaviour:
   closedRotation: {x: 0, y: 0, z: 0, w: 0}
   canSlide: 0
   circuit: 0
+  noiseRange: 0
 --- !u!23 &2068384530
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -20046,6 +20240,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3363833035402314263, guid: 2ff4b4676b9b18546a1a19e0b1ec34e9, type: 3}
+      propertyPath: noiseRange
+      value: 14
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -20217,6 +20415,10 @@ PrefabInstance:
     - target: {fileID: 156667893119568578, guid: 805ea319fc6626e4585180b50a4f2731, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6095523016574497652, guid: 805ea319fc6626e4585180b50a4f2731, type: 3}
+      propertyPath: noiseRange
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 6434707031866286013, guid: 805ea319fc6626e4585180b50a4f2731, type: 3}
       propertyPath: m_Name

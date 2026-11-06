@@ -12,6 +12,8 @@ namespace GolpeCalculado
         public Quaternion closedRotation;
         public bool canSlide;
         public int circuit;
+        [Tooltip("Alcance do ruído que este objeto faz ao ser usado (portas ruidosas, caixa de fusíveis, caixa empurrável).")]
+        public float noiseRange;
         public string Prompt => kind == ItemKind.Door ? (opened ? "Fechar " : "Abrir ") + label : label;
         public void Initialize() { closedPosition=transform.position; closedRotation=transform.rotation; }
         public void SetOpen(bool value)
@@ -29,7 +31,7 @@ namespace GolpeCalculado
             {
                 case ItemKind.Door:
                     SetOpen(!opened); game.Tone(noisy?180:340);
-                    if(noisy) { game.Noise(transform.position,14); game.Discover("ruido","As portas metálicas e os objetos lançados desviam a ronda para a origem do som."); }
+                    if(noisy) { game.Noise(transform.position,noiseRange); game.Discover("ruido","As portas metálicas e os objetos lançados desviam a ronda para a origem do som."); }
                     break;
                 case ItemKind.Key: case ItemKind.Tool: case ItemKind.Fuse:
                     if(used)return; used=true; game.Take(id); game.Say("Recolhido: "+label); game.Tone(680); gameObject.SetActive(false); break;
@@ -40,7 +42,7 @@ namespace GolpeCalculado
                 case ItemKind.FuseSocket:
                     if(game.VaultPower) { game.Say("Alimentação auxiliar já estável."); break; }
                     if(!game.Has("fuse")) { game.Say("Falta um fusível de 16 A. Consulta a oficina de manutenção."); break; }
-                    game.VaultPower=true; game.Take("fuse-installed"); game.Say("Fusível instalado. Terminal do arquivo de valores alimentado."); game.Tone(520); game.Noise(transform.position,10); break;
+                    game.VaultPower=true; game.Take("fuse-installed"); game.Say("Fusível instalado. Terminal do arquivo de valores alimentado."); game.Tone(520); game.Noise(transform.position,noiseRange); break;
                 case ItemKind.Keypad:
                     if(!game.VaultPower) { game.Say("Terminal sem energia. A caixa de alimentação está junto da entrada do arquivo."); break; }
                     game.OpenKeypad(this); break;
@@ -52,7 +54,7 @@ namespace GolpeCalculado
                     game.HasThrowable=true; used=true; gameObject.SetActive(false); game.Say("Garrafa recolhida. G para lançar uma distração."); break;
                 case ItemKind.Crate:
                     var rb=GetComponent<Rigidbody>(); if(rb!=null) rb.AddForce(game.player.transform.forward*3+Vector3.up*.25f,ForceMode.VelocityChange);
-                    game.Noise(transform.position,7); game.Tone(240); break;
+                    game.Noise(transform.position,noiseRange); game.Tone(240); break;
                 case ItemKind.AlarmReset:
                     game.SetAlarm(false); game.Say("Sirene silenciada. O vigilante continua a procurar na última zona relevante."); break;
             }
@@ -61,10 +63,11 @@ namespace GolpeCalculado
     public sealed class ThrownNoise : MonoBehaviour
     {
         public HeistGame game; bool sounded;
+        [Tooltip("Alcance do ruído do impacto.")] public float noiseRange=18;
         void OnCollisionEnter(Collision collision)
         {
             if(sounded)return; sounded=true;
-            game.Noise(transform.position,18); game.Tone(900);
+            game.Noise(transform.position,noiseRange); game.Tone(900);
             game.Discover("ruido","Os impactos atraem o vigilante ao local do som; a ronda fica temporariamente livre.");
             Destroy(gameObject,8);
         }

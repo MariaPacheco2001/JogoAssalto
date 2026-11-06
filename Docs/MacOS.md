@@ -1,6 +1,6 @@
 # Suporte macOS
 
-[Issue #71](https://github.com/mjpacheco2001/golpe-calculado/issues/71) — implementação parcial; teste num Mac real pendente.
+Implementação parcial; teste num Mac real pendente.
 
 ## Entrega de 9 de outubro de 2026
 
@@ -14,7 +14,7 @@
 
 ## Descarregar e abrir
 
-[Pacotes da entrega](https://github.com/mjpacheco2001/golpe-calculado/releases). O repositório é privado: os links exigem acesso. Em alternativa, enviar o ZIP diretamente.
+Enviar o ZIP diretamente a quem vai testar.
 
 Extrair Golpe-Calculado-macOS-Universal.zip no Mac, abrir a pasta e mover GolpeCalculado.app para Aplicações. Abrir a aplicação e escolher Novo jogo. O LEIA-ME explica os controlos e o procedimento específico da aplicação em Privacidade e Segurança, caso o sistema não reconheça o programador. Não desativar globalmente as proteções.
 

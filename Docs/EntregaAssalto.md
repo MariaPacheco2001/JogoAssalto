@@ -60,10 +60,10 @@ Esta versão demonstra o ciclo completo de missão e inclui os primeiros sistema
 - Falta testar todos os botões, a leitura das pistas, a dificuldade de fuga e as duas estratégias com pessoas que desconhecem o jogo.
 - A grelha completa da Assignment 2 ainda terá de ser recebida e confrontada com o projeto.
 
-Os resultados de execução ficam em Docs/Testes/heist-editor.txt, heist-windows.txt e heist-resume.txt. O estado detalhado das tarefas é mantido nas issues do GitHub.
+Os resultados antigos de execução estão em Docs/Arquivo/Testes. Para correr os testes, ver o README.
 
 ## Git e equipa
 
-Consultar Docs/Planeamento.md para as 70 issues. Os commits referenciam as tarefas implementadas com Refs #n; usar Closes #n apenas com critérios satisfeitos e validação registada.
+O planeamento antigo por issues está em Docs/Arquivo/Planeamento.md.
 
 A pessoa responsável pela integração edita a cena principal. A outra trabalha em prefabs e cenas de trabalho separadas. Os dois computadores usam Unity 6000.6.5f1 e partilham os ficheiros meta; Library, Logs e builds ficam fora do Git.

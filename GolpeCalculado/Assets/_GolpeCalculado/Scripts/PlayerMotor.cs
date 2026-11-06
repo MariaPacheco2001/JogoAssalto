@@ -2,6 +2,8 @@ using UnityEngine;
 
 namespace GolpeCalculado
 {
+    // Movimento a pé: andar, correr, agachar, saltar e olhar.
+    // Nos testes, ExternalInput = true e os comandos vêm de MoveInput, LookInput, etc.
     [RequireComponent(typeof(CharacterController))]
     public sealed class PlayerMotor : MonoBehaviour
     {
@@ -17,7 +19,11 @@ namespace GolpeCalculado
         public bool IsCrouching { get; private set; }
         public CharacterController Body { get; private set; }
         float pitch, vertical;
-        void Awake() { Body = GetComponent<CharacterController>(); }
+        void Awake()
+        {
+            Body = GetComponent<CharacterController>();
+        }
+
         void Update()
         {
             if (!controlled || Time.timeScale == 0) return;
@@ -29,7 +35,7 @@ namespace GolpeCalculado
             transform.Rotate(0, look.x * sensitivity, 0);
             pitch = Mathf.Clamp(pitch - look.y * sensitivity * (invertY ? -1 : 1), -80, 80);
             view.transform.localRotation = Quaternion.Euler(pitch, 0, 0);
-            // Keep the feet fixed. Standing up is blocked by ceilings and other colliders.
+            // Os pés ficam no sítio. Não se levanta se houver um teto ou outro objeto por cima.
             if (!crouch && IsCrouching)
             {
                 foreach (var hit in Physics.OverlapCapsule(transform.position + Vector3.up * .4f,
@@ -45,8 +51,11 @@ namespace GolpeCalculado
             IsCrouching = crouch;
             view.transform.localPosition = Vector3.Lerp(view.transform.localPosition,
                 Vector3.up * (crouch ? .9f : 1.65f), 15 * Time.deltaTime);
-            if (grounded && vertical < 0) vertical = -2;
-            if (jump && grounded && !crouch) vertical = Mathf.Sqrt(2 * 18f * .8f);
+            // Gravidade de 18 m/s² e salto de 0,8 m.
+            if (grounded && vertical < 0)
+                vertical = -2;
+            if (jump && grounded && !crouch)
+                vertical = Mathf.Sqrt(2 * 18f * .8f);
             vertical -= 18f * Time.deltaTime;
             var desired = transform.TransformDirection(new Vector3(move.x, 0, move.y).normalized);
             Body.Move((desired * (crouch ? crouchSpeed : run ? runSpeed : walkSpeed) * SpeedMultiplier + Vector3.up * vertical) * Time.deltaTime);
@@ -58,7 +67,8 @@ namespace GolpeCalculado
             Body.enabled = false;
             transform.SetPositionAndRotation(feet, rotation);
             Body.enabled = wasEnabled;
-            vertical = 0; pitch = 0;
+            vertical = 0;
+            pitch = 0;
         }
     }
 }

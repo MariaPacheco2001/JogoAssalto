@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -39,65 +37,175 @@ namespace GolpeCalculado
 
     public sealed partial class HeistGame
     {
-        public HeistInterface ui=new HeistInterface();
-        Page shownPage=(Page)(-1);
+        public HeistInterface ui = new HeistInterface();
+        Page shownPage = (Page)(-1);
 
         void LateUpdate()
         {
-            if(ui.hud==null)return;
-            if(Current!=shownPage){shownPage=Current;OnPageShown();}
-            bool playing=Current==Page.Play;
-            ui.hud.SetActive(playing);ui.screens.SetActive(!playing);
-            if(playing)RefreshHud();
-            else if(Current==Page.Pause)ui.pauseObjective.text=Objective;
-            else if(Current==Page.Notes)ui.notesObjective.text=Objective;
-            bool showMessage=Time.unscaledTime<messageUntil;
-            ui.messagePanel.SetActive(showMessage);if(showMessage)ui.message.text=message;
+            if (ui.hud == null)
+                return;
+
+            if (Current != shownPage)
+            {
+                shownPage = Current;
+                OnPageShown();
+            }
+
+            bool playing = Current == Page.Play;
+            ui.hud.SetActive(playing);
+            ui.screens.SetActive(!playing);
+            if (playing)
+                RefreshHud();
+            else if (Current == Page.Pause)
+                ui.pauseObjective.text = Objective;
+            else if (Current == Page.Notes)
+                ui.notesObjective.text = Objective;
+
+            bool showMessage = Time.unscaledTime < messageUntil;
+            ui.messagePanel.SetActive(showMessage);
+            if (showMessage)
+                ui.message.text = message;
         }
 
         void RefreshHud()
         {
-            ui.stage.text=CaseLoaded||CaseRecovered?"03 / EXTRAÇÃO":Checkpoint>0?"02 / INFILTRAÇÃO":"01 / APROXIMAÇÃO";
-            ui.objective.text=Objective;
-            var target=!InVan?Target():null;
-            string text=InVan?"E Sair · Espaço Travão de mão":target!=null?"E "+target.Prompt:CanEnter()?"E Entrar na carrinha":"";
-            ui.promptPanel.SetActive(text.Length>0);ui.prompt.text=text;
-            ui.status.text=(CarryingCase?"Q Pousar mala  ·  ":"")+(HasThrowable?"G Lançar garrafa  ·  ":"")+"Pistas: "+Notes.Count+"  ·  Itens e registos: "+Inventory.Count;
+            if (CaseLoaded || CaseRecovered)
+                ui.stage.text = "03 / EXTRAÇÃO";
+            else if (Checkpoint > 0)
+                ui.stage.text = "02 / INFILTRAÇÃO";
+            else
+                ui.stage.text = "01 / APROXIMAÇÃO";
+            ui.objective.text = Objective;
+
+            string prompt = ActionPrompt();
+            ui.promptPanel.SetActive(prompt.Length > 0);
+            ui.prompt.text = prompt;
+
+            string status = "";
+            if (CarryingCase)
+                status += "Q Pousar mala  ·  ";
+            if (HasThrowable)
+                status += "G Lançar garrafa  ·  ";
+            status += "Pistas: " + Notes.Count + "  ·  Itens e registos: " + Inventory.Count;
+            ui.status.text = status;
+
             ui.vanPanel.SetActive(InVan);
-            if(InVan){ui.speed.text=Mathf.RoundToInt(van.SpeedKmh)+" km/h";ui.handbrake.text=van.Handbrake?"TRAVÃO DE MÃO ATIVO":"SHIFT TRAVAR";}
+            if (InVan)
+            {
+                ui.speed.text = Mathf.RoundToInt(van.SpeedKmh) + " km/h";
+                ui.handbrake.text = van.Handbrake ? "TRAVÃO DE MÃO ATIVO" : "SHIFT TRAVAR";
+            }
             ui.alarm.SetActive(Alarm);
         }
 
+        // O que a tecla E faz neste momento.
+        string ActionPrompt()
+        {
+            if (InVan)
+                return "E Sair · Espaço Travão de mão";
+            var target = Target();
+            if (target != null)
+                return "E " + target.Prompt;
+            if (CanEnter())
+                return "E Entrar na carrinha";
+            return "";
+        }
+
+        GameObject PanelFor(Page page)
+        {
+            switch (page)
+            {
+                case Page.Menu: return ui.menu;
+                case Page.Briefing: return ui.briefing;
+                case Page.Pause: return ui.pause;
+                case Page.Notes: return ui.notes;
+                case Page.Document: return ui.document;
+                case Page.Keypad: return ui.keypad;
+                case Page.Controls: return ui.controls;
+                case Page.Options: return ui.options;
+                case Page.Credits: return ui.credits;
+                case Page.Checkpoints: return ui.checkpoints;
+                case Page.Confirm: return ui.confirm;
+                case Page.Victory:
+                case Page.Defeat: return ui.end;
+                default: return null;
+            }
+        }
+
+        // Chamado uma vez sempre que o ecrã muda: mostra o painel certo e prepara o conteúdo.
         void OnPageShown()
         {
-            var pages=new Dictionary<Page,GameObject>{
-                {Page.Menu,ui.menu},{Page.Briefing,ui.briefing},{Page.Pause,ui.pause},{Page.Notes,ui.notes},{Page.Document,ui.document},
-                {Page.Keypad,ui.keypad},{Page.Controls,ui.controls},{Page.Options,ui.options},{Page.Credits,ui.credits},
-                {Page.Checkpoints,ui.checkpoints},{Page.Confirm,ui.confirm},{Page.Victory,ui.end},{Page.Defeat,ui.end}};
-            foreach(var page in pages.Values.Distinct())page.SetActive(false);
-            if(pages.TryGetValue(Current,out var shown))shown.SetActive(true);
-            int latest=LatestSave();
-            switch(Current)
+            var panels = new[] { ui.menu, ui.briefing, ui.pause, ui.notes, ui.document, ui.keypad, ui.controls, ui.options, ui.credits, ui.checkpoints, ui.confirm, ui.end };
+            foreach (var panel in panels)
+                panel.SetActive(false);
+            var shown = PanelFor(Current);
+            if (shown != null)
+                shown.SetActive(true);
+
+            int latest = LatestSave();
+            switch (Current)
             {
-                case Page.Menu:ui.continueButton.interactable=latest>0;ui.selectCheckpointButton.interactable=latest>0;break;
-                case Page.Pause:ui.pauseRestartCheckpointButton.interactable=latest>0;break;
+                case Page.Menu:
+                    ui.continueButton.interactable = latest > 0;
+                    ui.selectCheckpointButton.interactable = latest > 0;
+                    break;
+                case Page.Pause:
+                    ui.pauseRestartCheckpointButton.interactable = latest > 0;
+                    break;
                 case Page.Notes:
-                    ui.notesList.text=Notes.Count==0?"Ainda não registaste pistas. Observa etiquetas e lê documentos no local.":string.Join("\n\n",Notes.Values);
-                    ui.notesScroll.verticalNormalizedPosition=1;break;
-                case Page.Document:ui.documentTitle.text=documentTitle;ui.documentBody.text=documentText;break;
-                case Page.Keypad:ui.pin.SetTextWithoutNotify(pin);ui.pin.ActivateInputField();break;
+                    if (Notes.Count == 0)
+                        ui.notesList.text = "Ainda não registaste pistas. Observa etiquetas e lê documentos no local.";
+                    else
+                        ui.notesList.text = string.Join("\n\n", Notes.Values);
+                    ui.notesScroll.verticalNormalizedPosition = 1;
+                    break;
+                case Page.Document:
+                    ui.documentTitle.text = documentTitle;
+                    ui.documentBody.text = documentText;
+                    break;
+                case Page.Keypad:
+                    ui.pin.SetTextWithoutNotify(pin);
+                    ui.pin.ActivateInputField();
+                    break;
                 case Page.Options:
-                    ui.volume.SetValueWithoutNotify(volume);ui.sensitivity.SetValueWithoutNotify(player.sensitivity);
-                    ui.fieldOfView.SetValueWithoutNotify(player.view.fieldOfView);ui.invertY.SetIsOnWithoutNotify(player.invertY);break;
-                case Page.Checkpoints:for(int i=0;i<3;i++)ui.checkpointButtons[i].interactable=HasSave(i+1);break;
+                    ui.volume.SetValueWithoutNotify(volume);
+                    ui.sensitivity.SetValueWithoutNotify(player.sensitivity);
+                    ui.fieldOfView.SetValueWithoutNotify(player.view.fieldOfView);
+                    ui.invertY.SetIsOnWithoutNotify(player.invertY);
+                    break;
+                case Page.Checkpoints:
+                    for (int i = 0; i < 3; i++)
+                        ui.checkpointButtons[i].interactable = HasSave(i + 1);
+                    break;
                 case Page.Confirm:
-                    ui.confirmBody.text=confirm=="novo"||confirm=="missao"?"Começar de novo substitui a partida e os checkpoints guardados.":"Vais abandonar o progresso desde o último checkpoint. Queres continuar?";break;
-                case Page.Victory:case Page.Defeat:
-                    bool won=Current==Page.Victory;
-                    ui.endTitle.text=won?"Entrega confirmada.":"Foste capturado.";
-                    ui.endBody.text=won?"A mala NC-17 chegou ao esconderijo. O contrato está concluído.\nTempo ativo: "+TimeSpan.FromSeconds(ActiveSeconds).ToString(@"mm\:ss"):"O vigilante apanhou-te. Usa o que descobriste para alterar o plano.";
-                    ui.endRestartButton.gameObject.SetActive(!won);ui.endRestartButton.interactable=latest>0;break;
+                    bool restart = confirm == "novo" || confirm == "missao";
+                    ui.confirmBody.text = restart
+                        ? "Começar de novo substitui a partida e os checkpoints guardados."
+                        : "Vais abandonar o progresso desde o último checkpoint. Queres continuar?";
+                    break;
+                case Page.Victory:
+                case Page.Defeat:
+                    ShowEnd(latest);
+                    break;
             }
+        }
+
+        void ShowEnd(int latestSave)
+        {
+            bool won = Current == Page.Victory;
+            if (won)
+            {
+                string time = TimeSpan.FromSeconds(ActiveSeconds).ToString(@"mm\:ss");
+                ui.endTitle.text = "Entrega confirmada.";
+                ui.endBody.text = "A mala NC-17 chegou ao esconderijo. O contrato está concluído.\nTempo ativo: " + time;
+            }
+            else
+            {
+                ui.endTitle.text = "Foste capturado.";
+                ui.endBody.text = "O vigilante apanhou-te. Usa o que descobriste para alterar o plano.";
+            }
+            ui.endRestartButton.gameObject.SetActive(!won);
+            ui.endRestartButton.interactable = latestSave > 0;
         }
 
         // Ações dos botões (ligadas no Inspector, em On Click).

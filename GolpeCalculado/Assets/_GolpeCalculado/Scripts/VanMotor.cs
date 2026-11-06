@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace GolpeCalculado
 {
+    // Condução da carrinha com WheelColliders: acelerar, travar, marcha-atrás, direção e travão de mão.
     [RequireComponent(typeof(Rigidbody))]
     public sealed class VanMotor : MonoBehaviour
     {
@@ -18,9 +19,26 @@ namespace GolpeCalculado
         public float SpeedKmh => Body == null ? 0 : Body.linearVelocity.magnitude * 3.6f;
         public float SignedSpeed => Vector3.Dot(Body.linearVelocity, transform.forward);
         float steering;
-        void Awake() { Body = GetComponent<Rigidbody>(); Body.centerOfMass = new Vector3(0, .55f, -.1f); }
-        public void SetOccupied(bool value) { Occupied = value; if (!value) Handbrake = true; }
-        public void SetHandbrake(bool value) { Handbrake = value; }
+        void Awake()
+        {
+            Body = GetComponent<Rigidbody>();
+            // Centro de massa baixo para a carrinha não tombar nas curvas.
+            Body.centerOfMass = new Vector3(0, .55f, -.1f);
+        }
+
+        // Ao sair, o travão de mão fica sempre puxado.
+        public void SetOccupied(bool value)
+        {
+            Occupied = value;
+            if (!value)
+                Handbrake = true;
+        }
+
+        public void SetHandbrake(bool value)
+        {
+            Handbrake = value;
+        }
+
         void Update()
         {
             if (Time.timeScale == 0) return;
@@ -41,6 +59,7 @@ namespace GolpeCalculado
             float throttle = Occupied ? (ExternalInput ? ThrottleInput : Input.GetAxisRaw("Vertical")) : 0;
             float turn = Occupied ? (ExternalInput ? SteerInput : Input.GetAxisRaw("Horizontal")) : 0;
             bool brake = Occupied && (ExternalInput ? BrakeInput : Input.GetKey(KeyCode.LeftShift));
+            // Carregar no sentido contrário ao movimento trava antes de inverter a marcha.
             bool directionBrake = Mathf.Abs(SignedSpeed) > .65f && throttle * SignedSpeed < 0;
             float targetSteering = turn * Mathf.Lerp(30, 12, Mathf.Clamp01(SpeedKmh / 45));
             steering = Mathf.MoveTowards(steering, targetSteering, 75 * Time.fixedDeltaTime);
@@ -51,7 +70,7 @@ namespace GolpeCalculado
                 bool limited = throttle > 0 ? SignedSpeed > 12.5f : SignedSpeed < -4;
                 wheels[i].motorTorque = !Handbrake && !brake && !directionBrake && !limited ? throttle * 1050 : 0;
             }
-            // A modest anti-roll force keeps a loaded delivery van predictable in corners.
+            // Barra estabilizadora simples: evita que a carrinha incline demasiado nas curvas.
             for (int axle = 0; axle < 2; axle++)
             {
                 var a = wheels[axle * 2]; var b = wheels[axle * 2 + 1];

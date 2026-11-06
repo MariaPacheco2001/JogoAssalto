@@ -25,6 +25,24 @@ Jogo 3D na primeira pessoa para um jogador, com versão Windows e build experime
 
 Não aceitar uma atualização automática de versão no segundo computador. Confirmar 6000.6.5f1 em Help > About Unity antes de editar.
 
+## Como o projeto está montado
+
+Desde novembro de 2026, tudo o que se vê e se monta é feito no editor; o código fica só com os sistemas do jogo.
+
+| No editor (assets) | Onde |
+| --- | --- |
+| Cena da missão, já gravada, com a Hierarchy em pastas | `Scenes/M02_AssaltoArmazem.unity` |
+| NavMesh: objeto «Navegação armazém» com NavMesh Surface (pacote AI Navigation). Depois de mudar paredes ou estantes, carregar em **Bake**. Os objetos interativos, a carrinha e o jogador têm NavMesh Modifier para ficarem fora do bake. | `Scenes/M02_AssaltoArmazem/` |
+| Prefabs: Estante, Luminária de teto, Câmara de vigilância, Porta, Mesa com documento, Quadro elétrico, Garrafa, Caixa empurrável, Garrafa lançada | `Prefabs/Missao/` |
+| Interface: objeto «Interface» (Canvas) com o HUD e todos os ecrãs; os botões estão ligados em On Click | cena M02 |
+| Zonas dos checkpoints CP1 e CP2: caixas Is Trigger em «Missão Golpe Calculado / Zonas de checkpoint» | cena M02 |
+| Sons das respostas: lista «Sounds» no Inspector do objeto «Missão Golpe Calculado» | `Audio/Efeitos/` |
+| Valores afináveis no Inspector: vigilante (visão, velocidades, tempos), câmaras, código do cofre, distâncias, ruído de cada objeto, duração da animação das portas | componentes HeistGuard, HeistCamera, HeistGame, HeistItem |
+
+Ficam em código os sistemas: vigilante, câmaras, circuitos, ruído, alarme, objetos interativos, jogador, carrinha, gravação e a troca de ecrãs da interface (`HeistGameUI.cs`). `HeistBuilder.cs` e `PrototypeBuilder.cs` já não montam cenas; ficam só com as builds usadas pelos testes.
+
+A etiqueta git `antes-do-editor` guarda o estado anterior a esta mudança.
+
 ## Controlos
 
 | Contexto | Teclas |
@@ -63,7 +81,19 @@ Esta lista complementa os testes automáticos de execução. O teste com uma pes
 
 No Unity, usar File > Build Profiles > Windows, com M02_AssaltoArmazem em primeiro na lista de cenas. A ferramenta HeistBuilder.Build gera Builds/AssaltoWindows na raiz do repositório. Copiar a pasta inteira para o segundo computador; o executável depende de GolpeCalculado_Data, UnityPlayer.dll e restantes ficheiros.
 
-Não executar «Construir cena Marco 1» para refazer trabalho manual. A ferramenta recusa substituir uma cena já existente.
+As builds também estão no menu Golpe Calculado > Build Windows (missão).
+
+## Testes automáticos
+
+Correm com o Unity fechado, a partir de um terminal (substituir CAMINHO):
+
+```
+Unity.exe -batchmode -projectPath "CAMINHO/GolpeCalculado" -executeMethod EditorMissionValidation.Run -heistValidate "CAMINHO/heist.txt" -logFile "CAMINHO/heist.log"
+Unity.exe -batchmode -projectPath "CAMINHO/GolpeCalculado" -executeMethod IssueAudit.Run -issueAudit "CAMINHO/audit.txt" -logFile "CAMINHO/audit.log"
+Unity.exe -batchmode -projectPath "CAMINHO/GolpeCalculado" -executeMethod EditorValidation.Run -golpeValidate "CAMINHO/m01.txt" -logFile "CAMINHO/m01.log"
+```
+
+Resultado a 6 de novembro de 2026, depois da passagem para o editor: missão 84/84, auditoria 52/52, M01 19/19.
 
 ## Planeamento
 

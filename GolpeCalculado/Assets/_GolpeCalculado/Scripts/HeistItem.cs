@@ -12,6 +12,8 @@ namespace GolpeCalculado
         public Quaternion closedRotation;
         public bool canSlide;
         public int circuit;
+        [Tooltip("Quadro elétrico: o que liga e desliga com este quadro (luzes, câmara). Recebe true quando o circuito tem energia.")]
+        public UnityEngine.Events.UnityEvent<bool> onSwitched=new UnityEngine.Events.UnityEvent<bool>();
         [Tooltip("Alcance do ruído que este objeto faz ao ser usado (portas ruidosas, caixa de fusíveis, caixa empurrável).")]
         public float noiseRange;
         [Header("Animação da porta")]

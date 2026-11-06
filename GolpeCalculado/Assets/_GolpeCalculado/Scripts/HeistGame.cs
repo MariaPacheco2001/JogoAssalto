@@ -18,7 +18,7 @@ namespace GolpeCalculado
     public sealed partial class HeistGame : MonoBehaviour
     {
         public PlayerMotor player; public VanMotor van; public HeistGuard guard;
-        public HeistItem caseItem,vaultDoor; public Transform hideout; public Light[] circuitBLights,circuitCLights,alarmLights;
+        public HeistItem caseItem,vaultDoor; public Transform hideout; public Light[] alarmLights;
         public Vector3 guardResetPosition;
         [Header("Cofre e checkpoints")]
         [Tooltip("Código do terminal do arquivo (TURNO + CAIS + DIA).")] public string vaultCode="020713";
@@ -114,7 +114,17 @@ namespace GolpeCalculado
             if(!Circuits[index]){var board=Items.FirstOrDefault(i=>i.kind==ItemKind.Power&&i.circuit==index);if(board!=null)StartCoroutine(InvestigatePower(board.transform.position));}
         }
         System.Collections.IEnumerator InvestigatePower(Vector3 point){yield return new WaitForSeconds(2);guard.Investigate(point);}
-        public void ApplyCircuits(){foreach(var light in circuitBLights)light.enabled=Circuits[0];foreach(var light in circuitCLights)light.enabled=Circuits[1];foreach(var light in alarmLights)light.enabled=Alarm;}
+        // O que cada quadro liga está no Inspector do quadro (evento On Switched).
+        HeistItem Board(int circuit)=>Items.FirstOrDefault(i=>i.kind==ItemKind.Power&&i.circuit==circuit);
+        T[] OnCircuit<T>(int circuit) where T:UnityEngine.Object
+        {
+            var board=Board(circuit);if(board==null)return new T[0];
+            return Enumerable.Range(0,board.onSwitched.GetPersistentEventCount()).Select(i=>board.onSwitched.GetPersistentTarget(i)).OfType<T>().Distinct().ToArray();
+        }
+        public Light[] circuitBLights=>OnCircuit<Light>(0);
+        public Light[] circuitCLights=>OnCircuit<Light>(1);
+        public HeistCamera[] CamerasOnCircuit(int circuit)=>OnCircuit<HeistCamera>(circuit);
+        public void ApplyCircuits(){foreach(var board in Items.Where(i=>i.kind==ItemKind.Power))board.onSwitched.Invoke(Circuits[board.circuit]);foreach(var light in alarmLights)light.enabled=Alarm;}
         public void SetAlarm(bool value){Alarm=value;ApplyCircuits();if(value){Tone(250);guard.Investigate(caseItem.transform.position);Say("Alarme de reserva ativo. Procura cobertura e prepara a saída.");}}
         public void OpenKeypad(HeistItem item){pin="";previous=Page.Pause;Show(Page.Keypad);}
         public bool SubmitPin(string value)

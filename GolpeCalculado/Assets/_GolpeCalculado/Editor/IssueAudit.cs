@@ -101,7 +101,7 @@ public sealed class IssueAuditProbe : MonoBehaviour
         {
             g.ToggleCircuit(i); yield return null;
             var lights = i==0?g.circuitBLights:g.circuitCLights;
-            var cameras = FindObjectsByType<HeistCamera>(FindObjectsSortMode.None).Where(c=>c.circuit==i).ToArray();
+            var cameras = g.CamerasOnCircuit(i);
             Check(lights.All(l=>!l.enabled)&&cameras.Length>0&&cameras.All(c=>c.led.material.color==Color.black), "#45 Circuito "+i+" desliga luzes e indicador da camara juntos");
             g.SaveCheckpoint(3); g.ToggleCircuit(i); g.LoadCheckpoint(3); yield return null;
             Check(!g.Circuits[i]&&lights.All(l=>!l.enabled)&&cameras.All(c=>c.led.material.color==Color.black), "#45 Restauro conserva circuito desligado "+i);

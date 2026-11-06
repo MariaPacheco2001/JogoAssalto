@@ -7,7 +7,6 @@ namespace GolpeCalculado
         public HeistGame game;
         public Transform lens;
         public Renderer led;
-        public int circuit;
         public float baseYaw;
         [Header("Visão")]
         [Tooltip("Alcance em metros.")] public float range=17;
@@ -18,11 +17,14 @@ namespace GolpeCalculado
         [Tooltip("Segundos a ver o jogador até avisar o vigilante.")] public float exposureToReport=.7f;
         [Tooltip("Intervalo mínimo entre avisos.")] public float reportCooldown=2;
         float exposure, nextReport;
+        // Ligado pelo quadro elétrico (evento On Switched no Inspector).
+        public bool Powered {get;private set;}=true;
+        public void SetPowered(bool value){Powered=value;}
         public void ResetObservation(){exposure=0;nextReport=0;}
         void Update()
         {
             if(game==null || !game.Running || Time.timeScale==0)return;
-            bool powered=game.Circuits[circuit]; bool sees=false;
+            bool powered=Powered; bool sees=false;
             if(powered)
             {
                 lens.localRotation=Quaternion.Euler(tilt,baseYaw+Mathf.Sin(Time.time*sweepSpeed)*sweepAngle,0);

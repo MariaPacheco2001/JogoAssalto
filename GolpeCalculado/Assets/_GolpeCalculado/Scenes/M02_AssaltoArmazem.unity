@@ -395,7 +395,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Rita e Maria
+  m_Text: "Cr\xE9ditos"
 --- !u!222 &41087311
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9107,7 +9107,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "Miss\xE3o em desenvolvimento \xB7 PC e Mac\nA dura\xE7\xE3o de cerca de 12 minutos \xE9 uma meta que ser\xE1 medida com jogadores novos."
+  m_Text: "Se ficares sem saber o que fazer, prime J. \nO di\xE1rio mostra o objetivo e as pistas que j\xE1 encontraste."
 --- !u!222 &633678233
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -10455,7 +10455,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "Recupera uma mala num armaz\xE9m vigiado. Explora os acessos, encontra ferramentas e documentos e descobre como a seguran\xE7a est\xE1 ligada.\n\nA extra\xE7\xE3o come\xE7a quando pensas que o trabalho acabou."
+  m_Text: "A miss\xE3o parece simples: entrar num armaz\xE9m vigiado e sair com uma mala. Mas cada c\xE2mara, circuito e movimento do vigilante faz parte de uma seguran\xE7a que ainda n\xE3o conheces. Observa, descobre as liga\xE7\xF5es e prepara a fuga antes de tocares na mala."
 --- !u!222 &723217079
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -14295,7 +14295,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "Golpe Calculado\nProjeto universit\xE1rio \u2014 Invisible Systems\n\nMotor: Unity 6000.6.5f1\nModelos, materiais e \xE1udio provis\xF3rios constru\xEDdos no projeto.\nNenhum dos assets candidatos da Asset Store foi integrado nesta vers\xE3o.\n\nNomes completos e n\xFAmeros de estudante: a preencher pela equipa."
+  m_Text: "GOLPE CALCULADO\n\nMaria Jo\xE3o Pacheco \xB7 1250535\nAna Rita Silva \xB7 1211152\n\nDesenvolvido em Unity \xB7 2026"
 --- !u!222 &955238008
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -22218,7 +22218,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "O que n\xE3o v\xEAs tamb\xE9m conta."
+  m_Text: "O que n\xE3o v\xEAs pode denunciar-te."
 --- !u!222 &1466844107
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -23942,23 +23942,6 @@ MonoBehaviour:
   caseItem: {fileID: 724454656}
   vaultDoor: {fileID: 1017034750}
   hideout: {fileID: 566950048}
-  circuitBLights:
-  - {fileID: 434810306}
-  - {fileID: 1414940353}
-  - {fileID: 1831435946}
-  - {fileID: 1598578537}
-  - {fileID: 613956296}
-  circuitCLights:
-  - {fileID: 1820840196}
-  - {fileID: 627874556}
-  - {fileID: 61285006}
-  - {fileID: 108811170}
-  - {fileID: 761874705}
-  - {fileID: 1616451210}
-  - {fileID: 1181779026}
-  - {fileID: 1834539509}
-  - {fileID: 384096828}
-  - {fileID: 1268181532}
   alarmLights:
   - {fileID: 795682282}
   guardResetPosition: {x: 24, y: 0.06, z: 34}

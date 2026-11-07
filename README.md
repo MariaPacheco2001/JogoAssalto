@@ -30,6 +30,7 @@ A cena `M01_MovimentoConducao` serve só para testar o movimento e a condução.
 | Quadros elétricos: cada quadro tem no Inspector as luzes e a câmara que controla (On Switched) | cena M02 |
 | Zonas dos checkpoints CP1 e CP2 (caixas Is Trigger) | «Missão Golpe Calculado / Zonas de checkpoint» |
 | Sons das respostas | `Audio/Efeitos/` e lista «Sounds» do HeistGame |
+| Texturas e materiais (cor, tamanho da textura e brilho no Inspector) | `Art/` e `Art/Texturas/` |
 | Valores afináveis (vigilante, câmaras, código do cofre, distâncias, ruído, portas) | Inspector de HeistGuard, HeistCamera, HeistGame e HeistItem |
 
 O código (`Assets/_GolpeCalculado/Scripts`) fica só com os sistemas do jogo: vigilante, câmaras, objetos interativos, jogador, carrinha, gravação e a troca de ecrãs. A etiqueta git `antes-do-editor` guarda o estado anterior à passagem para o editor.
@@ -53,6 +54,12 @@ Unity.exe -batchmode -projectPath "CAMINHO/GolpeCalculado" -executeMethod Editor
 - Combinar quem edita a cena; só uma pessoa de cada vez no `.unity`. Os prefabs ajudam a dividir o trabalho.
 - Não apagar nem regenerar ficheiros `.meta`.
 - Branches curtas, pull antes de começar e commits pequenos depois de testar.
+
+## Créditos
+
+- Texturas: [ambientCG](https://ambientcg.com) (CC0).
+- Efeitos sonoros: [Pixabay](https://pixabay.com/sound-effects/) (licença Pixabay).
+- Modelos, controladores e restante conteúdo feitos no projeto.
 
 ## Documentação
 

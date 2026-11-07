@@ -22,6 +22,12 @@ As páginas dos dois primeiros candidatos indicam a Standard Unity Asset Store E
 
 Manter um quarteirão industrial modular com medidas reais, um armazém com interior construído e uma carrinha de carga. Selecionar posteriormente um conjunto PBR coerente de betão, chapa, asfalto e madeira e uma carrinha com cabine/interior e licença identificada. Importar primeiro numa cena isolada; verificar materiais, luz, colisões, escala, portas e visibilidade do condutor antes de substituir o protótipo. Reavaliar URP antes da fase de arte se os recursos efetivamente escolhidos o justificarem.
 
-## Créditos deste marco
+## Créditos
 
-Equipa: Rita e Maria. Modelos, materiais e som provisórios construídos dentro do projeto. Plataforma e motor: Unity. Não há modelos, controladores ou amostras de som externos importados. As licenças dos pacotes Unity permanecem nos respetivos pacotes.
+Equipa: Rita e Maria. Plataforma e motor: Unity.
+
+- Texturas (tijolo, betão, asfalto, madeira, chapa): ambientCG, licença CC0. Ficheiros em `Art/Texturas/`.
+- Efeitos sonoros: Pixabay, licença Pixabay. Ficheiros em `Audio/Efeitos/`.
+- Modelos e controladores construídos dentro do projeto; nenhum pacote da Asset Store importado.
+
+As licenças dos pacotes Unity permanecem nos respetivos pacotes.

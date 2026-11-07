@@ -22860,7 +22860,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "A P\xC9\nWASD andar \xB7 Rato olhar \xB7 Shift correr \xB7 Ctrl agachar \xB7 Espa\xE7o saltar\nE interagir / ler / apanhar / abrir \xB7 Q pousar a mala \xB7 G lan\xE7ar garrafa\nJ di\xE1rio de pistas \xB7 Esc pausa\n\nCARRINHA\nW acelerar \xB7 S travar e marcha-atr\xE1s \xB7 A/D dire\xE7\xE3o\nShift trav\xE3o de servi\xE7o \xB7 Espa\xE7o alternar trav\xE3o de m\xE3o\nE sair quando parada \xB7 Carrega a mala na traseira antes de entrar.\n\nMENUS\nRato e bot\xE3o esquerdo. Escreve os seis algarismos no terminal."
+  m_Text: "A P\xC9\nWASD andar \xB7 Rato olhar \xB7 Shift correr \xB7 Ctrl agachar \xB7 Espa\xE7o saltar\nE interagir \xB7 Q pousar a mala \xB7 G lan\xE7ar garrafa\nJ di\xE1rio \xB7 Esc pausa\n\nCARRINHA\nW acelerar \xB7 S travar e marcha-atr\xE1s \xB7 A/D virar\nShift travar \xB7 Espa\xE7o trav\xE3o de m\xE3o \xB7 E sair (com a carrinha parada)\n\nMENUS\nRato para escolher e clicar"
 --- !u!222 &1507645094
 CanvasRenderer:
   m_ObjectHideFlags: 0

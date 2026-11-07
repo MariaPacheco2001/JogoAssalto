@@ -23961,43 +23961,49 @@ MonoBehaviour:
   sounds:
   - name: Codigo incorreto
     hz: 130
-    clip: {fileID: 8300000, guid: a2e1c6f759ea7394aa95e8711644a9c8, type: 3}
+    clip: {fileID: 8300000, guid: 3d1eb27f4c837b1408a1eaa210614943, type: 3}
   - name: Falta um requisito
     hz: 150
-    clip: {fileID: 8300000, guid: 74a484aab3f209f4ab63e3e0b4ef3ac0, type: 3}
+    clip: {fileID: 8300000, guid: 683d77d690c019744912889818d1d490, type: 3}
   - name: Porta ruidosa
     hz: 180
-    clip: {fileID: 8300000, guid: 61d892ccc68aee3429468c14d2eddf92, type: 3}
-  - name: Alerta e caixa
+    clip: {fileID: 8300000, guid: e5d19672bfe457745b65a9761965f0aa, type: 3}
+  - name: Vigilante viu-te
     hz: 240
-    clip: {fileID: 8300000, guid: d9fa413c0a3d6bf49945f1620cec5609, type: 3}
+    clip: {fileID: 8300000, guid: 1eaf3f6170b3ffb4cbe2dbda1d674c4a, type: 3}
   - name: Alarme de reserva
     hz: 250
-    clip: {fileID: 8300000, guid: 848180b0facce704e834a08fa550d3e6, type: 3}
+    clip: {fileID: 8300000, guid: 806cb90f4639ddc48b65f94f0f17469e, type: 3}
   - name: Porta
     hz: 340
-    clip: {fileID: 8300000, guid: a73fd0005ee46874ea3f6b5235c8c5f9, type: 3}
+    clip: {fileID: 8300000, guid: b8577312de2e6474aa15cee167c3c54a, type: 3}
   - name: Quadro eletrico
     hz: 380
-    clip: {fileID: 8300000, guid: 5548db1a4b93677418292967384305cc, type: 3}
+    clip: {fileID: 8300000, guid: 5e06541e50d7ed54d9da5b162af72db3, type: 3}
   - name: Fusivel instalado
     hz: 520
-    clip: {fileID: 8300000, guid: 4c682f6d6c7a7f647891c4748d64a4e2, type: 3}
+    clip: {fileID: 8300000, guid: 219620287a80cda4f90779d398ae6b4c, type: 3}
   - name: Documento
     hz: 580
-    clip: {fileID: 8300000, guid: 7034d58a33efc2640ad91f4993086e35, type: 3}
+    clip: {fileID: 8300000, guid: 58c2b80c2250a9b459d585143c140689, type: 3}
   - name: Objeto recolhido
     hz: 680
-    clip: {fileID: 8300000, guid: 29ce3775563ad6a4aa0b85dc2684be5a, type: 3}
+    clip: {fileID: 8300000, guid: 08ca07e442094df498a3feebfbde1548, type: 3}
   - name: Arquivo aberto
     hz: 800
-    clip: {fileID: 8300000, guid: 29aaf7a0b7a63a14ca51deafa75e9b41, type: 3}
-  - name: Mala carregada e impacto
+    clip: {fileID: 8300000, guid: edec972cddf6dd442a66acb9836535dd, type: 3}
+  - name: Mala carregada
     hz: 900
-    clip: {fileID: 8300000, guid: 07c6e3885e819984c800cf97100dc7da, type: 3}
+    clip: {fileID: 8300000, guid: 722cfed79c7afd345a691c8b25d87861, type: 3}
   - name: Camara comunica posicao
     hz: 1150
-    clip: {fileID: 8300000, guid: f10591ef0eb4a404c9c301d3499cc41b, type: 3}
+    clip: {fileID: 8300000, guid: 65f0d46dc71b3c34481210348f40f578, type: 3}
+  - name: Caixa empurrada
+    hz: 245
+    clip: {fileID: 8300000, guid: c37c082b7da802d46af74279a5f92e3a, type: 3}
+  - name: Garrafa partida
+    hz: 905
+    clip: {fileID: 8300000, guid: a32bcf50f0eca5d48ae2bcd6c5dc9e16, type: 3}
   loadDistance: 3
   hideoutRadius: 6
   Circuits: 0101y

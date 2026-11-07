@@ -17,7 +17,7 @@ namespace GolpeCalculado
             sounded = true;
 
             game.Noise(transform.position, noiseRange);
-            game.Tone(900);
+            game.Tone(905);
             game.Discover("ruido", "Os impactos atraem o vigilante ao local do som; a ronda fica temporariamente livre.");
             Destroy(gameObject, 8);
         }

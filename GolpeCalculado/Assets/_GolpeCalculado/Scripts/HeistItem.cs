@@ -202,7 +202,7 @@ namespace GolpeCalculado
             if (body != null)
                 body.AddForce(game.player.transform.forward * 3 + Vector3.up * .25f, ForceMode.VelocityChange);
             game.Noise(transform.position, noiseRange);
-            game.Tone(240);
+            game.Tone(245);
         }
     }
 }

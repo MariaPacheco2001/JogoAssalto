@@ -16,6 +16,7 @@ namespace GolpeCalculado
         [Tooltip("Alcance da visão em metros.")] public float visionRange = 15;
         [Tooltip("Alcance quando o jogador está agachado e o Corredor B está às escuras.")] public float crouchDarkRange = 6;
         [Tooltip("Meio ângulo do cone de visão, em graus.")] public float visionAngle = 55;
+        [Tooltip("A esta distância (na horizontal) sente o jogador em qualquer direção, mesmo fora do cone.")] public float proximityRange = 1;
         public float eyeHeight = 1.55f;
         [Tooltip("Distância a que o vigilante apanha o jogador.")] public float catchDistance = 1.2f;
 
@@ -72,14 +73,29 @@ namespace GolpeCalculado
             Vector3 target = player.transform.position + Vector3.up * (player.IsCrouching ? .7f : 1.1f);
             Vector3 delta = target - origin;
 
+            // O cone mede-se na horizontal: um jogador agachado mesmo à frente
+            // não pode ficar "por baixo" da visão por estar mais baixo que os olhos.
+            Vector3 flat = Vector3.ProjectOnPlane(delta, Vector3.up);
+
+            // Encostado a ele, sente o jogador em qualquer direção (se não houver parede no meio).
+            if (flat.magnitude < proximityRange)
+                return NothingBetween(origin, target);
+
             // Agachado e com o Corredor B às escuras, o vigilante vê muito menos.
             bool hardToSee = player.IsCrouching && !game.Circuits[0];
             float range = hardToSee ? crouchDarkRange : visionRange;
-            if (delta.magnitude > range || Vector3.Angle(transform.forward, delta) > visionAngle)
+            if (delta.magnitude > range || Vector3.Angle(transform.forward, flat) > visionAngle)
                 return false;
 
+            return NothingBetween(origin, target);
+        }
+
+        // Verdadeiro se nenhuma parede ou objeto tapa a linha entre os olhos e o jogador.
+        // O vigilante não tem colliders próprios, por isso a linha nunca bate nele mesmo.
+        bool NothingBetween(Vector3 origin, Vector3 target)
+        {
             bool blocked = Physics.Linecast(origin, target, out var hit, ~0, QueryTriggerInteraction.Ignore);
-            return !blocked || hit.transform.IsChildOf(player.transform);
+            return !blocked || hit.transform.IsChildOf(game.player.transform);
         }
 
         void Go(Vector3 destination)

@@ -130,6 +130,10 @@ public sealed class IssueAuditProbe : MonoBehaviour
         Check(g.guard.SeesPlayer(), "#50 Visao aceita jogador exposto dentro do cone");
         var wall=GameObject.CreatePrimitive(PrimitiveType.Cube);wall.transform.position=new Vector3(24,1.5f,31);wall.transform.localScale=new Vector3(3,3,.4f);Physics.SyncTransforms();
         Check(!g.guard.SeesPlayer(), "#50 Parede bloqueia visao dentro do cone");
+        g.player.Teleport(new Vector3(24,.1f,34.7f),Quaternion.identity); Physics.SyncTransforms();
+        Check(g.guard.SeesPlayer(), "#2 Proximidade: sente jogador encostado nas costas");
+        g.player.Teleport(new Vector3(24.7f,.1f,34),Quaternion.identity); Physics.SyncTransforms();
+        Check(g.guard.SeesPlayer(), "#2 Proximidade: sente jogador encostado de lado");
         Destroy(wall);yield return null;g.guard.enabled=true;
         g.player.Teleport(new Vector3(24,.1f,29),Quaternion.identity);yield return new WaitForSeconds(.4f);
         Check(g.guard.State==HeistGuard.Mode.Chase && g.Current==HeistGame.Page.Play, "#50 Deteccao a distancia inicia perseguicao sem derrota");

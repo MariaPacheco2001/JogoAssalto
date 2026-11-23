@@ -126,7 +126,9 @@ namespace GolpeCalculado
 
         void Awake()
         {
-            Items = FindObjectsByType<HeistItem>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            // Só conta os objetos ativos na cena: um objeto desativado no editor (ex.: garrafa a mais)
+            // fica fora do jogo e não volta a aparecer ao restaurar um checkpoint.
+            Items = FindObjectsByType<HeistItem>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
             foreach (var item in Items)
                 item.Initialize();
 

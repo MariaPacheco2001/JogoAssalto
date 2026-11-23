@@ -161,8 +161,10 @@ public sealed class IssueAuditProbe : MonoBehaviour
         g.guard.enabled=false;g.LoadCheckpoint(3);
         g.player.Teleport(g.van.transform.TransformPoint(new Vector3(0,0,-2.6f)),Quaternion.identity);
         Check(g.LoadCase()&&g.Objective.Contains("esconderijo"), "#13 Carga muda objetivo para regresso");
-        g.van.SetOccupied(true);g.van.Body.position=g.hideout.position;g.van.Body.linearVelocity=Vector3.zero;g.van.Body.angularVelocity=Vector3.zero;
-        yield return null;
+        g.van.SetOccupied(true);g.van.Body.position=g.hideout.position+Vector3.up*.1f;g.van.transform.position=g.van.Body.position;
+        g.van.Body.linearVelocity=Vector3.zero;g.van.Body.angularVelocity=Vector3.zero;Physics.SyncTransforms();
+        float limit=Time.realtimeSinceStartup+5;
+        while(g.Current!=HeistGame.Page.Victory&&Time.realtimeSinceStartup<limit) yield return null;
         Check(g.Current==HeistGame.Page.Victory&&Time.timeScale==0&&AudioListener.pause&&Cursor.visible, "#20 #39 Entrega confirma vitoria e repoe cursor e audio");
         yield return new WaitForSecondsRealtime(.3f);
         Check(g.Current==HeistGame.Page.Victory, "#20 Chegada repetida conserva vitoria unica");

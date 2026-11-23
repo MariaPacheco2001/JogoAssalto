@@ -101,7 +101,7 @@ namespace GolpeCalculado
         {
             if (!string.IsNullOrEmpty(requires) && !game.Has(requires))
             {
-                game.Say("Precisas de " + game.KeyName(requires) + ".");
+                game.Say("Precisas " + game.KeyName(requires) + ".");
                 game.Tone(150);
                 return;
             }

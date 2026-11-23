@@ -184,15 +184,17 @@ namespace GolpeCalculado
             Inventory.Add(id);
         }
 
+        // Devolve o que falta já com "de" + artigo ("do", "da"),
+        // para a frase "Precisas " + KeyName(id) + "." ficar correta.
         public string KeyName(string id)
         {
             switch (id)
             {
-                case "officeKey": return "a chave do escritório";
-                case "crowbar": return "o pé-de-cabra";
-                case "staffKey": return "a chave de serviço";
-                case "manifest": return "identificar a mala no manifesto";
-                default: return id;
+                case "officeKey": return "da chave do escritório";
+                case "crowbar": return "do pé-de-cabra";
+                case "staffKey": return "da chave de serviço";
+                case "manifest": return "de identificar a mala no manifesto";
+                default: return "de " + id;
             }
         }
 

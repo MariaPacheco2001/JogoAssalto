@@ -40,6 +40,10 @@ namespace GolpeCalculado
         float nextPathUpdate;
         float lastVoice;
 
+        // Prioridade dos avisos (GDD 3.4): visão direta > procura > câmara > alarme > ruído e falha elétrica.
+        public const int NoisePriority = 1, PowerPriority = 1, AlarmPriority = 2, CameraPriority = 3, SearchPriority = 4;
+        int currentPriority;
+
         bool Searching => State == Mode.Search || State == Mode.Investigate;
 
         public string Description
@@ -106,11 +110,15 @@ namespace GolpeCalculado
                 Agent.SetDestination(point.position);
         }
 
-        public void Investigate(Vector3 position, bool camera = false)
+        public void Investigate(Vector3 position, int priority)
         {
             if (State == Mode.Chase)
                 return;
+            // Um aviso menos importante não interrompe uma investigação ou procura mais importante.
+            if (Searching && priority < currentPriority)
+                return;
 
+            currentPriority = priority;
             LastKnown = position;
             State = Mode.Investigate;
             investigateUntil = Time.time + investigateTime;
@@ -118,7 +126,7 @@ namespace GolpeCalculado
 
             if (Time.time - lastVoice > 4)
             {
-                game.Say(camera ? "Rádio: movimento no corredor. Vou verificar." : "Vigilante: ouvi qualquer coisa...");
+                game.Say(priority == CameraPriority ? "Rádio: movimento no corredor. Vou verificar." : "Vigilante: ouvi qualquer coisa...");
                 lastVoice = Time.time;
             }
         }
@@ -126,6 +134,7 @@ namespace GolpeCalculado
         public void ResetGuard(Vector3 position)
         {
             State = Mode.Patrol;
+            currentPriority = 0;
             nextPoint = 0;
             lostSight = 0;
             investigateUntil = 0;
@@ -185,6 +194,7 @@ namespace GolpeCalculado
                 if (lostSight > lostSightDelay)
                 {
                     State = Mode.Search;
+                    currentPriority = SearchPriority;
                     investigateUntil = Time.time + searchTime;
                     Go(LastKnown);
                 }
@@ -206,6 +216,7 @@ namespace GolpeCalculado
             {
                 // Desiste e volta à ronda onde a deixou.
                 State = Mode.Patrol;
+                currentPriority = 0;
                 Go(patrol[nextPoint].position);
             }
         }

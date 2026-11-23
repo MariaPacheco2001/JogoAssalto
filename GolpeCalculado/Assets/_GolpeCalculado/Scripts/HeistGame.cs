@@ -239,7 +239,7 @@ namespace GolpeCalculado
         public void Noise(Vector3 position, float range)
         {
             if (Vector3.Distance(guard.transform.position, position) < range)
-                guard.Investigate(position);
+                guard.Investigate(position, HeistGuard.NoisePriority);
         }
 
         // ---------- Circuitos e alarme ----------
@@ -265,7 +265,7 @@ namespace GolpeCalculado
         IEnumerator InvestigatePower(Vector3 point)
         {
             yield return new WaitForSeconds(2);
-            guard.Investigate(point);
+            guard.Investigate(point, HeistGuard.PowerPriority);
         }
 
         // O que cada quadro liga está no Inspector do quadro (evento On Switched).
@@ -311,7 +311,7 @@ namespace GolpeCalculado
             if (value)
             {
                 Tone(250);
-                guard.Investigate(caseItem.transform.position);
+                guard.Investigate(caseItem.transform.position, HeistGuard.AlarmPriority);
                 Say("Alarme de reserva ativo. Procura cobertura e prepara a saída.");
             }
         }

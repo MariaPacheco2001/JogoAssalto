@@ -84,7 +84,7 @@ namespace GolpeCalculado
         void Report()
         {
             nextReport = Time.time + reportCooldown;
-            game.guard.Investigate(game.player.transform.position, true);
+            game.guard.Investigate(game.player.transform.position, HeistGuard.CameraPriority);
             game.Tone(1150);
             game.Say("Câmara: posição comunicada. Sai do campo de visão.");
             game.Discover("camara", "As câmaras comunicam a última posição observada. Paredes e perda de energia interrompem a observação.");

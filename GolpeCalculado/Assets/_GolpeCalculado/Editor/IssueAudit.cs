@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 [InitializeOnLoad]
 public static class IssueAudit
@@ -163,6 +164,18 @@ public sealed class IssueAuditProbe : MonoBehaviour
     {
         g.ClearProgress(); g.Show(HeistGame.Page.Menu); g.RequestNewGame(); g.UI_SetDifficulty((int)level); g.UI_StartHeist(); g.guard.enabled = false;
     }
+    // Retangulo de um elemento da interface no ecra.
+    static Rect ScreenRect(RectTransform r)
+    {
+        var c = new Vector3[4]; r.GetWorldCorners(c);
+        return Rect.MinMaxRect(c[0].x, c[0].y, c[2].x, c[2].y);
+    }
+    // O marcador do jogador fica dentro da imagem da zona onde o jogador esta.
+    bool MarkerInside(string zoneId)
+    {
+        var marker = ScreenRect(g.ui.mapPlayer).center;
+        return ZoneImage(zoneId).GetComponentsInChildren<Image>(true).Any(i => i.GetComponent<Text>() == null && ScreenRect(i.rectTransform).Contains(marker));
+    }
     IEnumerator Map()
     {
         var zones = g.mapZones; var guard = g.guard;
@@ -170,6 +183,11 @@ public sealed class IssueAuditProbe : MonoBehaviour
             && z.mapImage != null && z.mapImage.transform.IsChildOf(g.ui.mapArea) && z.GetComponents<BoxCollider>().Length > 0 && z.GetComponents<BoxCollider>().All(b => b.isTrigger)),
             "US17 Sete zonas com nome, caixas trigger e imagem no mapa");
         Check(g.ui.mapArea.IsChildOf(g.ui.notes.transform) && g.ui.mapPlayer.parent == g.ui.mapArea, "US17 Mapa e marcador do jogador no ecra do diario (J)");
+        // A mensagem (ex.: "Checkpoint 1 guardado.") nao tapa nenhum botao dos ecras.
+        g.Show(HeistGame.Page.Menu); yield return null;
+        var messageRect = ScreenRect((RectTransform)g.ui.messagePanel.transform);
+        var covered = g.ui.screens.GetComponentsInChildren<Button>(true).Where(b => ScreenRect((RectTransform)b.transform).Overlaps(messageRect)).Select(b => b.transform.parent.name + "/" + b.name).ToArray();
+        Check(covered.Length == 0, "Mensagem nao tapa botoes dos ecras" + (covered.Length > 0 ? ": " + string.Join(", ", covered) : ""));
         // O centro de cada caixa pertence a essa zona e a mais nenhuma.
         bool exclusive = zones.All(z => z.GetComponents<BoxCollider>().All(b => zones.Count(o => o.Contains(b.bounds.center)) == 1 && z.Contains(b.bounds.center)));
         Check(exclusive, "US17 Zonas nao se sobrepoem");
@@ -197,6 +215,23 @@ public sealed class IssueAuditProbe : MonoBehaviour
         expected = new Vector2((24 + 25) / 85f * g.ui.mapArea.rect.width, (30 + 43) / 105f * g.ui.mapArea.rect.height);
         Check(OnlyShown("patio", "cais", "corredorB") && Vector2.Distance(g.ui.mapPlayer.anchoredPosition, expected) < 1
             && Mathf.Abs(Mathf.DeltaAngle(g.ui.mapPlayer.localEulerAngles.z, -90)) < 1, "US17 Marcador acompanha posicao e direcao do jogador (corredor B)");
+
+        // Marcador no sitio certo em todas as zonas, a comecar pelo patio (inicio da missao).
+        var spots = new (string zone, Vector3 at)[] { ("patio", new Vector3(-3, .1f, -23)), ("patio", new Vector3(18, .1f, -10)), ("cais", new Vector3(22, .1f, 10)),
+            ("corredorB", new Vector3(24, .1f, 30)), ("vestiario", new Vector3(22, .1f, 55)), ("oficina", new Vector3(45, .1f, 8)), ("escritorio", new Vector3(46, .1f, 26)), ("arquivo", new Vector3(47, .1f, 52)) };
+        foreach (var spot in spots)
+        {
+            g.Show(HeistGame.Page.Play); g.player.Teleport(spot.at, Quaternion.identity); yield return null;
+            g.Show(HeistGame.Page.Notes); yield return null;
+            var point = new Vector2((spot.at.x + 25) / 85f * g.ui.mapArea.rect.width, (spot.at.z + 43) / 105f * g.ui.mapArea.rect.height);
+            Check(Vector2.Distance(g.ui.mapPlayer.anchoredPosition, point) < 1 && MarkerInside(spot.zone) && g.IsRevealed(spot.zone),
+                "US17 Marcador dentro da zona " + spot.zone + " com o jogador em " + spot.at);
+        }
+        // Recomeca no estado de antes (patio, cais e corredor B), para os testes seguintes.
+        NewGame(HeistGame.Difficulty.Normal); yield return null;
+        g.player.Teleport(new Vector3(22, .1f, 10), Quaternion.identity); yield return null;
+        g.player.Teleport(new Vector3(24, .1f, 30), Quaternion.Euler(0, 90, 0)); yield return null;
+        g.Show(HeistGame.Page.Notes); yield return null;
 
         // Mexer no vigilante, nos quadros e nas camaras nao muda nada no mapa.
         string before = MapState();

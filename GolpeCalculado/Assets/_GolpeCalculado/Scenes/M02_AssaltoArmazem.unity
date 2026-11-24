@@ -612,7 +612,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65, y: -600}
+  m_AnchoredPosition: {x: 65, y: -580}
   m_SizeDelta: {x: 460, y: 43}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &62416864
@@ -2421,7 +2421,6 @@ GameObject:
   - component: {fileID: 195957824}
   - component: {fileID: 195957827}
   - component: {fileID: 195957826}
-  - component: {fileID: 195957825}
   m_Layer: 0
   m_Name: Parte 2
   m_TagString: Untagged
@@ -2448,21 +2447,6 @@ RectTransform:
   m_AnchoredPosition: {x: 148, y: 0}
   m_SizeDelta: {x: 52, y: 172}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &195957825
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 195957823}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.05, g: 0.06, b: 0.07, a: 1}
-  m_EffectDistance: {x: 1.5, y: -1.5}
-  m_UseGraphicAlpha: 1
 --- !u!114 &195957826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5825,7 +5809,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65, y: -600}
+  m_AnchoredPosition: {x: 65, y: -580}
   m_SizeDelta: {x: 460, y: 43}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &423904531
@@ -5968,7 +5952,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65, y: -630}
+  m_AnchoredPosition: {x: 700, y: -540}
   m_SizeDelta: {x: 460, y: 43}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &441497250
@@ -14061,7 +14045,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65, y: -600}
+  m_AnchoredPosition: {x: 65, y: -580}
   m_SizeDelta: {x: 460, y: 43}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &894043402
@@ -14278,7 +14262,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65, y: -600}
+  m_AnchoredPosition: {x: 65, y: -580}
   m_SizeDelta: {x: 460, y: 43}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &910443456
@@ -28729,7 +28713,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65, y: -600}
+  m_AnchoredPosition: {x: 65, y: -580}
   m_SizeDelta: {x: 460, y: 43}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1624353070
@@ -29862,7 +29846,6 @@ GameObject:
   - component: {fileID: 1674960081}
   - component: {fileID: 1674960084}
   - component: {fileID: 1674960083}
-  - component: {fileID: 1674960082}
   m_Layer: 0
   m_Name: Parte 1
   m_TagString: Untagged
@@ -29890,21 +29873,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 148, y: 404}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1674960082
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1674960080}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.05, g: 0.06, b: 0.07, a: 1}
-  m_EffectDistance: {x: 1.5, y: -1.5}
-  m_UseGraphicAlpha: 1
 --- !u!114 &1674960083
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31255,7 +31223,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 65, y: -600}
+  m_AnchoredPosition: {x: 65, y: -580}
   m_SizeDelta: {x: 460, y: 43}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1750737712

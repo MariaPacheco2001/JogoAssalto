@@ -21,6 +21,10 @@ namespace GolpeCalculado
         [Header("Menu e pausa")]
         public Button continueButton, selectCheckpointButton, pauseRestartCheckpointButton;
         public Text pauseObjective;
+        [Tooltip("Texto discreto na pausa com o nível de dificuldade da partida.")] public Text pauseDifficulty;
+        [Header("Dificuldade (briefing)")]
+        [Tooltip("Botões Fácil, Normal e Difícil, por esta ordem.")] public Button[] difficultyButtons=new Button[3];
+        public Text difficultyDetails;
         [Header("Diário")]
         public Text notesObjective; public Text notesList; public ScrollRect notesScroll;
         [Header("Documento")]
@@ -56,8 +60,13 @@ namespace GolpeCalculado
             ui.screens.SetActive(!playing);
             if (playing)
                 RefreshHud();
+            else if (Current == Page.Briefing)
+                RefreshDifficultyChoice();
             else if (Current == Page.Pause)
+            {
                 ui.pauseObjective.text = Objective;
+                ui.pauseDifficulty.text = "Dificuldade: " + LevelSettings.name;
+            }
             else if (Current == Page.Notes)
                 ui.notesObjective.text = Objective;
 

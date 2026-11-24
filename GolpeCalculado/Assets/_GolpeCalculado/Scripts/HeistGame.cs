@@ -36,6 +36,8 @@ namespace GolpeCalculado
         public string[] inventory, noteKeys, noteValues;
         public ItemSnapshot[] items;
         public float seconds;
+        // Nível de dificuldade (0 Fácil, 1 Normal, 2 Difícil). Gravações antigas sem este campo carregam em Normal.
+        public int difficulty = 1;
     }
 
     // Regras da missão: objetivos, inventário, pistas, circuitos, mala, carrinha e vitória.

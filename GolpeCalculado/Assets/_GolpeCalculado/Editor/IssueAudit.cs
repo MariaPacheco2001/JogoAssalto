@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using GolpeCalculado;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -43,11 +44,120 @@ public sealed class IssueAuditProbe : MonoBehaviour
     bool failed;
     HeistItem Item(string id) => g.Items.First(i => i.id == id);
     void Check(bool ok, string text) { results.Add((ok ? "PASS " : "FAIL ") + text); failed |= !ok; Debug.Log(results.Last()); }
+    float sceneVision, sceneReaction;
+
+    // US18: três níveis de dificuldade.
+    IEnumerator Difficulty()
+    {
+        var easy = HeistGame.Difficulty.Easy; var normal = HeistGame.Difficulty.Normal; var hard = HeistGame.Difficulty.Hard;
+        var table = g.difficulties;
+        Check(table.Length == 3 && table[0].name == "Fácil" && table[1].name == "Normal" && table[2].name == "Difícil", "US18 Tabela com Facil Normal e Dificil no HeistGame");
+        Check(table[1].visionRange == 15 && table[1].powerReactionDelay == 2 && !table[1].fullMap
+            && table[1].visionRange == sceneVision && table[1].powerReactionDelay == sceneReaction,
+            "US18 Normal igual ao jogo atual (visao 15 m, reacao 2 s, mapa a revelar)");
+        Check(table[0].visionRange == 12 && table[0].powerReactionDelay == 3 && table[0].fullMap, "US18 Facil: 12 m, 3 s, mapa completo");
+        Check(table[2].visionRange == 18 && table[2].powerReactionDelay == 1 && !table[2].fullMap, "US18 Dificil: 18 m, 1 s, mapa a revelar");
+
+        // Botoes do briefing ligados no Inspector ao nivel certo.
+        bool wired = g.ui.difficultyButtons.Length == 3;
+        for (int i = 0; wired && i < 3; i++)
+        {
+            var click = g.ui.difficultyButtons[i].onClick;
+            wired = click.GetPersistentEventCount() == 1 && click.GetPersistentTarget(0) == g && click.GetPersistentMethodName(0) == "UI_SetDifficulty"
+                && g.ui.difficultyButtons[i].transform.IsChildOf(g.ui.briefing.transform);
+        }
+        Check(wired && g.ui.difficultyDetails != null && g.ui.pauseDifficulty != null && g.ui.pauseDifficulty.transform.IsChildOf(g.ui.pause.transform),
+            "US18 Botoes Facil Normal Dificil no briefing e nivel na pausa");
+
+        // Novo jogo abre o briefing com o Normal pre-selecionado, mesmo depois de uma partida noutro nivel.
+        g.ClearProgress(); g.Show(HeistGame.Page.Menu); g.SetDifficulty(hard);
+        g.RequestNewGame(); yield return null;
+        Check(g.Current == HeistGame.Page.Briefing && g.Level == normal && !g.ui.difficultyButtons[1].interactable
+            && g.ui.difficultyButtons[0].interactable && g.ui.difficultyButtons[2].interactable && g.ui.difficultyDetails.text.StartsWith("Normal"),
+            "US18 Novo jogo pre-seleciona Normal no briefing");
+
+        var guard = g.guard; var guardSpot = new Vector3(24, .06f, 34);
+        for (int level = 0; level < 3; level++)
+        {
+            var settings = table[level];
+            // Escolha no briefing (pelo botao, como o jogador) e inicio da missao.
+            g.ClearProgress(); g.Show(HeistGame.Page.Menu); g.RequestNewGame();
+            g.ui.difficultyButtons[level].onClick.Invoke(); yield return null;
+            Check(g.Level == (HeistGame.Difficulty)level && !g.ui.difficultyButtons[level].interactable && g.ui.difficultyDetails.text.StartsWith(settings.name),
+                "US18 Botao " + settings.name + " escolhe o nivel");
+            g.UI_StartHeist(); guard.enabled = false;
+            Check(g.Running && guard.visionRange == settings.visionRange && guard.powerReactionDelay == settings.powerReactionDelay && g.FullMapFromStart == settings.fullMap,
+                "US18 " + settings.name + " aplica visao " + settings.visionRange + " m, reacao " + settings.powerReactionDelay + " s e mapa");
+            g.Show(HeistGame.Page.Pause); yield return null;
+            Check(g.ui.pauseDifficulty.text.Contains(settings.name), "US18 Pausa mostra o nivel " + settings.name);
+            g.Show(HeistGame.Page.Play);
+
+            // Visao: a 13,5 m so o Normal e o Dificil veem; a 16,5 m so o Dificil. Repetido, da sempre o mesmo.
+            bool[] expected = { level >= 1, level >= 2 };
+            float[] distances = { 13.5f, 16.5f };
+            for (int d = 0; d < 2; d++)
+            {
+                bool same = true, seen = false;
+                for (int repeat = 0; repeat < 3; repeat++)
+                {
+                    guard.ResetGuard(guardSpot); guard.transform.rotation = Quaternion.Euler(0, 180, 0);
+                    g.player.Teleport(new Vector3(24, .1f, 34 - distances[d]), Quaternion.identity); Physics.SyncTransforms();
+                    bool now = guard.SeesPlayer();
+                    if (repeat == 0) seen = now; else same &= now == seen;
+                }
+                Check(same && seen == expected[d], "US18 RNF01 " + settings.name + ": jogador a " + distances[d] + " m " + (expected[d] ? "visto" : "nao visto") + " sempre");
+            }
+
+            // Falha eletrica: o vigilante parte para o quadro passado o tempo do nivel, sempre igual.
+            g.player.Teleport(g.hideout.position + Vector3.up * .1f, Quaternion.identity);
+            float first = -1; bool repeatable = true;
+            for (int repeat = 0; repeat < 2; repeat++)
+            {
+                guard.ResetGuard(guardSpot); g.Circuits[0] = true; g.ApplyCircuits();
+                g.ToggleCircuit(0); float start = Time.time; float limit = start + settings.powerReactionDelay + 2;
+                while (guard.PowerCircuit != 0 && Time.time < limit) yield return null;
+                float took = guard.PowerCircuit == 0 ? Time.time - start : -1;
+                if (repeat == 0) first = took; else repeatable = took > 0 && Mathf.Abs(took - first) < .1f;
+            }
+            Check(first > 0 && Mathf.Abs(first - settings.powerReactionDelay) < .1f && repeatable,
+                "US18 RNF01 " + settings.name + ": vigilante reage a falha eletrica em " + settings.powerReactionDelay + " s (medido " + first.ToString("0.00") + " s) sempre");
+            guard.ResetGuard(guardSpot); g.Circuits[0] = true; g.ApplyCircuits();
+        }
+
+        // Gravar e carregar: o nivel fica no checkpoint e volta com Carregar, Continuar, Selecionar checkpoint e Recomecar.
+        g.ClearProgress(); g.Show(HeistGame.Page.Menu); g.RequestNewGame(); g.UI_SetDifficulty((int)hard); g.UI_StartHeist(); guard.enabled = false;
+        g.SaveCheckpoint(1);
+        string cp1 = Path.Combine(g.SaveDirectory, "cp1.json");
+        Check(JsonUtility.FromJson<HeistSnapshot>(File.ReadAllText(cp1)).difficulty == (int)hard, "US18 Checkpoint grava o nivel");
+        g.SetDifficulty(easy);
+        Check(g.LoadCheckpoint(1) && g.Level == hard && guard.visionRange == 18 && guard.powerReactionDelay == 1, "US18 Carregar checkpoint repoe o nivel e os valores");
+        g.SetDifficulty(easy); g.Show(HeistGame.Page.Menu); g.UI_Continue();
+        Check(g.Running && g.Level == hard && guard.visionRange == 18, "US18 Continuar mantem o nivel da partida");
+        g.SetDifficulty(normal); g.Show(HeistGame.Page.Menu); g.UI_OpenCheckpoints(); g.UI_Checkpoint(1);
+        if (g.Current == HeistGame.Page.Confirm) g.AcceptConfirmation();
+        Check(g.Running && g.Level == hard && guard.powerReactionDelay == 1, "US18 Selecionar checkpoint mantem o nivel da partida");
+        g.Show(HeistGame.Page.Pause); g.RequestRestartCheckpoint(); g.AcceptConfirmation();
+        Check(g.Running && g.Level == hard, "US18 Recomecar do checkpoint mantem o nivel");
+        g.Show(HeistGame.Page.Pause); g.RequestRestartMission(); g.AcceptConfirmation(); guard.enabled = false;
+        Check(g.Running && g.Level == hard && guard.visionRange == 18 && g.LatestSave() == 0, "US18 Recomecar missao mantem o nivel");
+
+        // Gravacoes antigas (sem nivel) carregam em Normal; um nivel desconhecido e rejeitado.
+        g.SaveCheckpoint(1);
+        string json = File.ReadAllText(cp1);
+        File.WriteAllText(cp1, Regex.Replace(json, @",\s*""difficulty""\s*:\s*\d+", ""));
+        Check(!File.ReadAllText(cp1).Contains("difficulty") && g.LoadCheckpoint(1) && g.Level == normal && guard.visionRange == 15 && guard.powerReactionDelay == 2,
+            "US18 Gravacao antiga sem nivel carrega em Normal");
+        var bad = JsonUtility.FromJson<HeistSnapshot>(json); bad.difficulty = 7; File.WriteAllText(cp1, JsonUtility.ToJson(bad));
+        Check(!g.HasSave(1) && !g.LoadCheckpoint(1), "US18 Nivel desconhecido na gravacao e rejeitado");
+        g.ClearProgress();
+    }
     IEnumerator Start()
     {
         yield return null;
         g = FindFirstObjectByType<HeistGame>();
         g.TestMode = true; g.player.ExternalInput = true; g.van.ExternalInput = true;
+        // Valores do vigilante tal como estão na cena, antes de qualquer nível ser aplicado (referência do Normal).
+        sceneVision = g.guard.visionRange; sceneReaction = g.guard.powerReactionDelay;
         g.ClearProgress(); g.Begin(); g.guard.enabled = false;
         yield return null;
         Check(g.Checkpoint == 0 && !g.CaseRecovered && g.Objective.Contains("Estaciona"), "#13 Fase inicial coerente");
@@ -195,6 +305,7 @@ public sealed class IssueAuditProbe : MonoBehaviour
         Check(g.Current==HeistGame.Page.Victory, "#20 Chegada repetida conserva vitoria unica");
         g.Show(HeistGame.Page.Menu);Check(g.Current==HeistGame.Page.Menu&&g.HasSave(3), "#39 Regresso ao menu preserva progresso");
         g.Begin();Check(g.Notes.Count==0&&!g.CaseRecovered&&g.Objective.Contains("Estaciona"), "#13 #54 Reinicio repoe fase inicial e diario sem solucoes");
+        yield return Difficulty();
         g.ClearProgress();
         var args=Environment.GetCommandLineArgs();int index=Array.IndexOf(args,"-issueAudit");
         File.WriteAllLines(args[index+1],results);

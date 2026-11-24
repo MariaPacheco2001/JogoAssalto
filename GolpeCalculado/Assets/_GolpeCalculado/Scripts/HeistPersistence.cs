@@ -39,7 +39,7 @@ namespace GolpeCalculado
 
         bool ValidateSnapshot(HeistSnapshot s, int cp)
         {
-            if (s == null || s.version != 1 || s.checkpoint != cp || cp < 1 || cp > 3)
+            if (s == null || s.version != 1 || s.checkpoint != cp || cp < 1 || cp > 3 || !ValidDifficulty(s.difficulty))
                 return false;
             if (s.circuits == null || s.circuits.Length != 2 || s.inventory == null || s.noteKeys == null || s.noteValues == null || s.items == null)
                 return false;
@@ -169,6 +169,7 @@ namespace GolpeCalculado
                 noteKeys = Notes.Keys.ToArray(),
                 noteValues = Notes.Values.ToArray(),
                 seconds = ActiveSeconds,
+                difficulty = (int)Level,
                 items = Items.Select(i => new ItemSnapshot { id = i.id, used = i.used, open = i.opened, position = i.transform.position }).ToArray()
             };
         }
@@ -214,6 +215,7 @@ namespace GolpeCalculado
                 Say(error);
                 return false;
             }
+            Level = (Difficulty)snapshot.difficulty;
             ApplySnapshot(snapshot);
             LastSaveError = "";
             Show(Page.Play);
@@ -258,6 +260,7 @@ namespace GolpeCalculado
             cabinPitch = 0;
             nextStepNoise = 0;
             CancelPowerFailures();
+            ApplyDifficulty();
             guard.ResetGuard(guardResetPosition);
             ApplyCircuits();
             Physics.SyncTransforms();

@@ -11,7 +11,7 @@ namespace GolpeCalculado
             if (LatestSave() > 0)
                 Confirm("novo");
             else
-                Show(Page.Briefing);
+                ShowBriefing();
         }
 
         public bool RequestCheckpoint(int cp)
@@ -72,7 +72,7 @@ namespace GolpeCalculado
                     if (!ClearProgress())
                         return;
                     if (confirm == "novo")
-                        Show(Page.Briefing);
+                        ShowBriefing();
                     else
                         Begin();
                     break;

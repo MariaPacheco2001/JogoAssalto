@@ -62,7 +62,7 @@ namespace GolpeCalculado
                 return false;
             if (s.noteKeys.Any(string.IsNullOrWhiteSpace) || s.noteKeys.Distinct().Count() != s.noteKeys.Length)
                 return false;
-            if (s.noteValues.Any(v => v == null))
+            if (s.noteValues.Any(v => v == null) || !ValidRevealedZones(s.revealedZones))
                 return false;
 
             // Cada objeto da cena aparece exatamente uma vez.
@@ -170,6 +170,7 @@ namespace GolpeCalculado
                 noteValues = Notes.Values.ToArray(),
                 seconds = ActiveSeconds,
                 difficulty = (int)Level,
+                revealedZones = RevealedZones,
                 items = Items.Select(i => new ItemSnapshot { id = i.id, used = i.used, open = i.opened, position = i.transform.position }).ToArray()
             };
         }
@@ -261,6 +262,7 @@ namespace GolpeCalculado
             nextStepNoise = 0;
             CancelPowerFailures();
             ApplyDifficulty();
+            RestoreMap(s.revealedZones);
             guard.ResetGuard(guardResetPosition);
             ApplyCircuits();
             Physics.SyncTransforms();

@@ -151,6 +151,102 @@ public sealed class IssueAuditProbe : MonoBehaviour
         Check(!g.HasSave(1) && !g.LoadCheckpoint(1), "US18 Nivel desconhecido na gravacao e rejeitado");
         g.ClearProgress();
     }
+    // US17: mapa do diario.
+    GameObject ZoneImage(string id) => g.mapZones.First(z => z.id == id).mapImage;
+    static readonly string[] ZoneIds = { "patio", "cais", "corredorB", "vestiario", "oficina", "escritorio", "arquivo" };
+    bool OnlyRevealed(params string[] ids) => ZoneIds.All(id => g.IsRevealed(id) == ids.Contains(id));
+    bool OnlyShown(params string[] ids) => ZoneIds.All(id => ZoneImage(id).activeSelf == ids.Contains(id));
+    // Estado de tudo o que esta dentro da area do mapa (nome, visivel, posicao, tamanho, rotacao).
+    string MapState() => string.Join("|", g.ui.mapArea.GetComponentsInChildren<RectTransform>(true)
+        .Select(r => r.name + r.gameObject.activeSelf + r.anchoredPosition + r.sizeDelta + r.localEulerAngles));
+    void NewGame(HeistGame.Difficulty level)
+    {
+        g.ClearProgress(); g.Show(HeistGame.Page.Menu); g.RequestNewGame(); g.UI_SetDifficulty((int)level); g.UI_StartHeist(); g.guard.enabled = false;
+    }
+    IEnumerator Map()
+    {
+        var zones = g.mapZones; var guard = g.guard;
+        Check(zones.Length == 7 && ZoneIds.All(id => zones.Count(z => z != null && z.id == id) == 1) && zones.All(z => !string.IsNullOrEmpty(z.displayName)
+            && z.mapImage != null && z.mapImage.transform.IsChildOf(g.ui.mapArea) && z.GetComponents<BoxCollider>().Length > 0 && z.GetComponents<BoxCollider>().All(b => b.isTrigger)),
+            "US17 Sete zonas com nome, caixas trigger e imagem no mapa");
+        Check(g.ui.mapArea.IsChildOf(g.ui.notes.transform) && g.ui.mapPlayer.parent == g.ui.mapArea, "US17 Mapa e marcador do jogador no ecra do diario (J)");
+        // O centro de cada caixa pertence a essa zona e a mais nenhuma.
+        bool exclusive = zones.All(z => z.GetComponents<BoxCollider>().All(b => zones.Count(o => o.Contains(b.bounds.center)) == 1 && z.Contains(b.bounds.center)));
+        Check(exclusive, "US17 Zonas nao se sobrepoem");
+        // O mapa so tem zonas e o jogador: nada do vigilante, das camaras, dos quadros nem da mala.
+        bool onlyZonesAndPlayer = g.ui.mapArea.GetComponentsInChildren<RectTransform>(true).Where(r => r != g.ui.mapArea)
+            .All(r => r.IsChildOf(g.ui.mapPlayer) || zones.Any(z => r.IsChildOf(z.mapImage.transform)));
+        bool noSecurityNames = !g.ui.mapArea.GetComponentsInChildren<Transform>(true).Any(t => Regex.IsMatch(t.name, "vigil|c.mara|quadro|mala|alarme", RegexOptions.IgnoreCase));
+        Check(onlyZonesAndPlayer && noSecurityNames, "US17 Mapa so contem zonas e o jogador (sem vigilante, camaras, quadros ou mala)");
+
+        // Normal: comeca so com o patio, onde o jogador esta.
+        NewGame(HeistGame.Difficulty.Normal); yield return null;
+        Check(!g.FullMapFromStart && OnlyRevealed("patio"), "US17 Normal: no inicio so o patio esta revelado");
+        g.Show(HeistGame.Page.Notes); yield return null;
+        Check(OnlyShown("patio") && g.ui.mapPlayer.gameObject.activeInHierarchy, "US17 Diario mostra so as zonas visitadas e o jogador");
+        g.Show(HeistGame.Page.Play);
+        g.player.Teleport(new Vector3(22, .1f, 10), Quaternion.identity); yield return null;
+        Check(OnlyRevealed("patio", "cais"), "US17 Entrar no cais revela o cais e mais nenhuma zona");
+        g.Show(HeistGame.Page.Notes); yield return null;
+        Check(OnlyShown("patio", "cais"), "US17 Imagem do cais so aparece depois da visita");
+        var expected = new Vector2((22 + 25) / 85f * g.ui.mapArea.rect.width, (10 + 43) / 105f * g.ui.mapArea.rect.height);
+        Check(Vector2.Distance(g.ui.mapPlayer.anchoredPosition, expected) < 1, "US17 Marcador do jogador na posicao certa (cais)");
+        g.Show(HeistGame.Page.Play);
+        g.player.Teleport(new Vector3(24, .1f, 30), Quaternion.Euler(0, 90, 0)); yield return null;
+        g.Show(HeistGame.Page.Notes); yield return null;
+        expected = new Vector2((24 + 25) / 85f * g.ui.mapArea.rect.width, (30 + 43) / 105f * g.ui.mapArea.rect.height);
+        Check(OnlyShown("patio", "cais", "corredorB") && Vector2.Distance(g.ui.mapPlayer.anchoredPosition, expected) < 1
+            && Mathf.Abs(Mathf.DeltaAngle(g.ui.mapPlayer.localEulerAngles.z, -90)) < 1, "US17 Marcador acompanha posicao e direcao do jogador (corredor B)");
+
+        // Mexer no vigilante, nos quadros e nas camaras nao muda nada no mapa.
+        string before = MapState();
+        g.Show(HeistGame.Page.Play);
+        guard.ResetGuard(new Vector3(45, .06f, 30)); g.ToggleCircuit(0); g.ToggleCircuit(1); yield return null;
+        g.Show(HeistGame.Page.Notes); yield return null;
+        string afterGuard = MapState();
+        g.Show(HeistGame.Page.Play); guard.ResetGuard(new Vector3(24, .06f, 34)); g.ToggleCircuit(0); g.ToggleCircuit(1);
+        g.Show(HeistGame.Page.Notes); yield return null;
+        Check(before == afterGuard && before == MapState(), "US17 Vigilante e sistema de seguranca nao aparecem nem mudam o mapa");
+        g.Show(HeistGame.Page.Play);
+
+        // Gravar e carregar.
+        g.SaveCheckpoint(1);
+        string cp1 = Path.Combine(g.SaveDirectory, "cp1.json");
+        var saved = JsonUtility.FromJson<HeistSnapshot>(File.ReadAllText(cp1)).revealedZones;
+        Check(saved.Length == 3 && saved.Contains("patio") && saved.Contains("cais") && saved.Contains("corredorB"), "US17 Checkpoint grava as zonas reveladas");
+        g.player.Teleport(new Vector3(46, .1f, 26), Quaternion.identity); yield return null;
+        Check(g.IsRevealed("escritorio"), "US17 Entrar no escritorio revela-o");
+        Check(g.LoadCheckpoint(1) && OnlyRevealed("patio", "cais", "corredorB"), "US17 Carregar checkpoint repoe as zonas gravadas");
+        g.Show(HeistGame.Page.Notes); yield return null;
+        Check(OnlyShown("patio", "cais", "corredorB"), "US17 Depois de carregar o diario mostra as zonas gravadas");
+        g.Show(HeistGame.Page.Menu); g.UI_Continue();
+        Check(g.Running && OnlyRevealed("patio", "cais", "corredorB"), "US17 Continuar repoe as zonas gravadas");
+        g.Show(HeistGame.Page.Pause); g.RequestRestartMission(); g.AcceptConfirmation(); guard.enabled = false;
+        Check(OnlyRevealed(), "US17 Recomecar missao esconde de novo as zonas");
+        yield return null;
+        Check(OnlyRevealed("patio"), "US17 Recomecar missao: so o patio volta a aparecer");
+
+        // Gravacoes antigas sem zonas carregam com o mapa por revelar; nomes repetidos sao rejeitados.
+        g.player.Teleport(new Vector3(22, .1f, 10), Quaternion.identity); yield return null;
+        g.SaveCheckpoint(1);
+        string json = File.ReadAllText(cp1);
+        File.WriteAllText(cp1, Regex.Replace(json, @",\s*""revealedZones""\s*:\s*\[[^\]]*\]", ""));
+        Check(!File.ReadAllText(cp1).Contains("revealedZones") && g.LoadCheckpoint(1) && OnlyRevealed(), "US17 Gravacao antiga sem zonas carrega com o mapa por revelar");
+        var bad = JsonUtility.FromJson<HeistSnapshot>(json); bad.revealedZones = new[] { "cais", "cais" }; File.WriteAllText(cp1, JsonUtility.ToJson(bad));
+        Check(!g.HasSave(1), "US17 Zonas repetidas na gravacao sao rejeitadas");
+
+        // Facil: mapa completo desde o inicio, tambem ao carregar.
+        NewGame(HeistGame.Difficulty.Easy);
+        Check(g.FullMapFromStart && OnlyRevealed(ZoneIds), "US17 Facil: todas as zonas reveladas desde o inicio");
+        g.Show(HeistGame.Page.Notes); yield return null;
+        Check(OnlyShown(ZoneIds), "US17 Facil: diario mostra o mapa completo");
+        g.Show(HeistGame.Page.Play); g.SaveCheckpoint(1);
+        var easy = JsonUtility.FromJson<HeistSnapshot>(File.ReadAllText(cp1)); easy.revealedZones = new[] { "patio" }; File.WriteAllText(cp1, JsonUtility.ToJson(easy));
+        Check(g.LoadCheckpoint(1) && g.Level == HeistGame.Difficulty.Easy && OnlyRevealed(ZoneIds), "US17 Facil: carregar checkpoint mantem o mapa completo");
+        NewGame(HeistGame.Difficulty.Hard); yield return null;
+        Check(OnlyRevealed("patio"), "US17 Dificil: mapa a revelar como no Normal");
+        g.ClearProgress();
+    }
     IEnumerator Start()
     {
         yield return null;
@@ -306,6 +402,7 @@ public sealed class IssueAuditProbe : MonoBehaviour
         g.Show(HeistGame.Page.Menu);Check(g.Current==HeistGame.Page.Menu&&g.HasSave(3), "#39 Regresso ao menu preserva progresso");
         g.Begin();Check(g.Notes.Count==0&&!g.CaseRecovered&&g.Objective.Contains("Estaciona"), "#13 #54 Reinicio repoe fase inicial e diario sem solucoes");
         yield return Difficulty();
+        yield return Map();
         g.ClearProgress();
         var args=Environment.GetCommandLineArgs();int index=Array.IndexOf(args,"-issueAudit");
         File.WriteAllLines(args[index+1],results);

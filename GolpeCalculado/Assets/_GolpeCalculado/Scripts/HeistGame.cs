@@ -38,6 +38,8 @@ namespace GolpeCalculado
         public float seconds;
         // Nível de dificuldade (0 Fácil, 1 Normal, 2 Difícil). Gravações antigas sem este campo carregam em Normal.
         public int difficulty = 1;
+        // Zonas do mapa do diário já reveladas (US17). Gravações antigas sem este campo carregam sem zonas.
+        public string[] revealedZones = new string[0];
     }
 
     // Regras da missão: objetivos, inventário, pistas, circuitos, mala, carrinha e vitória.
@@ -625,6 +627,7 @@ namespace GolpeCalculado
                 ReadKeys();
             if (!InVan)
                 UpdateOnFoot();
+            RevealZonesAt(MapPosition);
 
             bool parkedAtHideout = Vector3.Distance(van.transform.position, hideout.position) < hideoutRadius && van.SpeedKmh < 1;
             if (CaseLoaded && InVan && parkedAtHideout)

@@ -27,6 +27,9 @@ namespace GolpeCalculado
         public Text difficultyDetails;
         [Header("Diário")]
         public Text notesObjective; public Text notesList; public ScrollRect notesScroll;
+        [Header("Mapa (diário)")]
+        [Tooltip("Área do mapa. As imagens das zonas e o marcador do jogador são filhos dela, com âncora no canto inferior esquerdo.")] public RectTransform mapArea;
+        [Tooltip("Marcador do jogador no mapa (âncora e pivot: canto inferior esquerdo e centro). Roda com a direção do jogador.")] public RectTransform mapPlayer;
         [Header("Documento")]
         public Text documentTitle; public Text documentBody;
         [Header("Terminal")]
@@ -68,7 +71,10 @@ namespace GolpeCalculado
                 ui.pauseDifficulty.text = "Dificuldade: " + LevelSettings.name;
             }
             else if (Current == Page.Notes)
+            {
                 ui.notesObjective.text = Objective;
+                RefreshMap();
+            }
 
             bool showMessage = Time.unscaledTime < messageUntil;
             ui.messagePanel.SetActive(showMessage);

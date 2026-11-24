@@ -11,7 +11,7 @@ namespace GolpeCalculado
         public string name;
         [Tooltip("Distância de deteção do vigilante, em metros (passa para HeistGuard.visionRange).")] public float visionRange;
         [Tooltip("Segundos até o vigilante reagir a uma falha elétrica (passa para HeistGuard.powerReactionDelay).")] public float powerReactionDelay;
-        [Tooltip("Mapa do diário (US17) completo desde o início. O mapa ainda não existe: ligar quando for feito, com HeistGame.FullMapFromStart.")] public bool fullMap;
+        [Tooltip("Mapa do diário (US17) com todas as zonas reveladas desde o início (HeistGame.FullMapFromStart).")] public bool fullMap;
     }
 
     // Nível de dificuldade da partida: escolha no briefing, aplicação ao vigilante e texto para a interface.
@@ -32,7 +32,7 @@ namespace GolpeCalculado
         public Difficulty Level { get; private set; } = Difficulty.Normal;
         public DifficultySettings LevelSettings => difficulties[(int)Level];
 
-        // US17: quando o mapa existir, mostra-o completo desde o início se isto for verdadeiro.
+        // US17: com isto verdadeiro, o mapa do diário mostra todas as zonas desde o início (ver HeistMap).
         public bool FullMapFromStart => LevelSettings.fullMap;
 
         static bool ValidDifficulty(int level)

@@ -59,7 +59,9 @@ Unity.exe -batchmode -projectPath "CAMINHO/GolpeCalculado" -executeMethod Editor
 
 - Texturas: [ambientCG](https://ambientcg.com) (CC0).
 - Efeitos sonoros: [Pixabay](https://pixabay.com/sound-effects/) (licença Pixabay).
-- Modelos, controladores e restante conteúdo feitos no projeto.
+- Carrinha: Kenney (kenney.nl), Car Kit, CC0.
+- Vigilante (personagem e animações): Quaternius (quaternius.com), Universal Animation Library, CC0.
+- Controladores e restante conteúdo feitos no projeto.
 
 ## Documentação
 

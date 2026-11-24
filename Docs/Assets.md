@@ -28,6 +28,8 @@ Equipa: Rita e Maria. Plataforma e motor: Unity.
 
 - Texturas (tijolo, betão, asfalto, madeira, chapa): ambientCG, licença CC0. Ficheiros em `Art/Texturas/`.
 - Efeitos sonoros: Pixabay, licença Pixabay. Ficheiros em `Audio/Efeitos/`.
-- Modelos e controladores construídos dentro do projeto; nenhum pacote da Asset Store importado.
+- Carrinha: Kenney (kenney.nl), Car Kit, CC0. Ficheiros em `Modelos/Carrinha/`.
+- Vigilante (personagem e animações): Quaternius (quaternius.com), Universal Animation Library, CC0. Ficheiro em `Modelos/Vigilante/`.
+- Restantes modelos e controladores construídos dentro do projeto; nenhum pacote da Asset Store importado.
 
 As licenças dos pacotes Unity permanecem nos respetivos pacotes.

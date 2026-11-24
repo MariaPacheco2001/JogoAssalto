@@ -85,6 +85,13 @@ SE ALGUMA COISA NÃO FUNCIONAR
 - Ao comunicar um problema, indica também se usaste rato ou trackpad.
 - Para sair, usa «Sair» no menu inicial ou Command + Q.
 
+CRÉDITOS
+
+Texturas: ambientCG (ambientcg.com), CC0
+Efeitos sonoros: Pixabay (pixabay.com), licença Pixabay
+Kenney (kenney.nl), Car Kit, CC0
+Quaternius (quaternius.com), Universal Animation Library, CC0
+
 SOBRE ESTA VERSÃO
 
 É um protótipo jogável: o aspeto visual, os sons e as animações ainda estão

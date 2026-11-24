@@ -71,6 +71,13 @@ SE ALGUMA COISA NÃO FUNCIONAR
 - O jogo não abre: confirma que estás num PC Windows 64 bits. Envia à Rita
   ou à Maria uma captura da mensagem apresentada e o modelo do computador.
 
+CRÉDITOS
+
+Texturas: ambientCG (ambientcg.com), CC0
+Efeitos sonoros: Pixabay (pixabay.com), licença Pixabay
+Kenney (kenney.nl), Car Kit, CC0
+Quaternius (quaternius.com), Universal Animation Library, CC0
+
 SOBRE ESTA VERSÃO
 
 É um protótipo jogável: o aspeto visual, os sons e as animações ainda estão

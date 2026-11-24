@@ -45,7 +45,36 @@ public sealed class IssueAuditProbe : MonoBehaviour
     bool failed;
     HeistItem Item(string id) => g.Items.First(i => i.id == id);
     void Check(bool ok, string text) { results.Add((ok ? "PASS " : "FAIL ") + text); failed |= !ok; Debug.Log(results.Last()); }
-    float sceneVision, sceneReaction;
+    float sceneVision, sceneReaction, sceneChase;
+    float[] sceneCameraTimes;
+    static HeistCamera[] Cameras() => FindObjectsByType<HeistCamera>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
+    bool CamerasAt(float seconds) => Cameras().Length > 0 && Cameras().All(c => c.exposureToReport == seconds);
+
+    // Tempo entre o jogador ficar à vista de uma câmara parada e o aviso chegar ao vigilante (-1 se nenhuma avisar).
+    IEnumerator CameraReport(float[] took)
+    {
+        var guard = g.guard; took[0] = -1;
+        foreach (var camera in Cameras().Where(c => c.Powered && c.gameObject.activeInHierarchy))
+        {
+            float sweep = camera.sweepSpeed; camera.sweepSpeed = 0;
+            g.player.Teleport(g.hideout.position + Vector3.up * .1f, Quaternion.identity); yield return null;
+            Vector3 ahead = Vector3.ProjectOnPlane(camera.lens.forward, Vector3.up).normalized;
+            bool placed = Physics.Raycast(camera.lens.position + ahead * 3.5f, Vector3.down, out var ground, 10, ~0, QueryTriggerInteraction.Ignore);
+            if (placed)
+            {
+                foreach (var c in Cameras()) c.ResetObservation();
+                guard.ResetGuard(new Vector3(24, .06f, 34));
+                g.player.Teleport(ground.point + Vector3.up * .06f, Quaternion.identity); Physics.SyncTransforms();
+                float start = Time.time, limit = start + camera.exposureToReport + 1;
+                while (guard.State != HeistGuard.Mode.Investigate && Time.time < limit) yield return null;
+                if (guard.State == HeistGuard.Mode.Investigate) took[0] = Time.time - start;
+            }
+            camera.sweepSpeed = sweep;
+            g.player.Teleport(g.hideout.position + Vector3.up * .1f, Quaternion.identity);
+            guard.ResetGuard(new Vector3(24, .06f, 34));
+            if (took[0] > 0) { took[1] = Array.IndexOf(Cameras(), camera); yield break; }
+        }
+    }
 
     // US18: três níveis de dificuldade.
     IEnumerator Difficulty()
@@ -56,8 +85,15 @@ public sealed class IssueAuditProbe : MonoBehaviour
         Check(table[1].visionRange == 15 && table[1].powerReactionDelay == 2 && !table[1].fullMap
             && table[1].visionRange == sceneVision && table[1].powerReactionDelay == sceneReaction,
             "US18 Normal igual ao jogo atual (visao 15 m, reacao 2 s, mapa a revelar)");
-        Check(table[0].visionRange == 12 && table[0].powerReactionDelay == 3 && table[0].fullMap, "US18 Facil: 12 m, 3 s, mapa completo");
-        Check(table[2].visionRange == 18 && table[2].powerReactionDelay == 1 && !table[2].fullMap, "US18 Dificil: 18 m, 1 s, mapa a revelar");
+        Check(table[1].cameraReportTime == .7f && table[1].chaseSpeed == 4.3f && table[1].chaseSpeed == sceneChase
+            && sceneCameraTimes.Length > 0 && sceneCameraTimes.All(t => t == table[1].cameraReportTime),
+            "US18 Normal igual ao jogo atual nas " + sceneCameraTimes.Length + " camaras (0,7 s) e na perseguicao (4,3 m/s)");
+        Check(table[0].visionRange == 12 && table[0].powerReactionDelay == 3 && table[0].fullMap && table[0].cameraReportTime == 1.2f && table[0].chaseSpeed == 3.8f,
+            "US18 Facil: 12 m, 3 s, mapa completo, camaras 1,2 s, perseguicao 3,8 m/s");
+        Check(table[2].visionRange == 18 && table[2].powerReactionDelay == 1 && !table[2].fullMap && table[2].cameraReportTime == .4f && table[2].chaseSpeed == 4.8f,
+            "US18 Dificil: 18 m, 1 s, mapa a revelar, camaras 0,4 s, perseguicao 4,8 m/s");
+        Check(table.All(t => t.chaseSpeed <= HeistGame.MaxChaseSpeed) && HeistGame.MaxChaseSpeed == 4.8f && HeistGame.MaxChaseSpeed < g.player.runSpeed,
+            "US18 Perseguicao nunca passa de 4,8 m/s, abaixo da corrida do jogador (" + g.player.runSpeed + " m/s)");
 
         // Botoes do briefing ligados no Inspector ao nivel certo.
         bool wired = g.ui.difficultyButtons.Length == 3;
@@ -89,6 +125,34 @@ public sealed class IssueAuditProbe : MonoBehaviour
             g.UI_StartHeist(); guard.enabled = false;
             Check(g.Running && guard.visionRange == settings.visionRange && guard.powerReactionDelay == settings.powerReactionDelay && g.FullMapFromStart == settings.fullMap,
                 "US18 " + settings.name + " aplica visao " + settings.visionRange + " m, reacao " + settings.powerReactionDelay + " s e mapa");
+            Check(CamerasAt(settings.cameraReportTime) && guard.chaseSpeed == settings.chaseSpeed,
+                "US18 " + settings.name + " aplica " + settings.cameraReportTime + " s a todas as camaras e " + settings.chaseSpeed + " m/s a perseguicao");
+            string expectedLine = level == 0 ? "câmaras mais lentas a avisar e vigilante mais lento a perseguir"
+                : level == 2 ? "câmaras mais rápidas a avisar e vigilante mais rápido a perseguir" : "câmaras a avisar em";
+            Check(g.DifficultyDescription((HeistGame.Difficulty)level).Contains(expectedLine), "US18 Briefing explica camaras e perseguicao no " + settings.name);
+
+            // Camara: o aviso chega ao vigilante passado o tempo do nivel, sempre igual.
+            var firstReport = new float[2]; var secondReport = new float[2];
+            yield return CameraReport(firstReport); yield return CameraReport(secondReport);
+            Check(firstReport[0] > 0 && Mathf.Abs(firstReport[0] - settings.cameraReportTime) < .1f
+                && firstReport[1] == secondReport[1] && Mathf.Abs(secondReport[0] - firstReport[0]) < .05f,
+                "US18 RNF01 " + settings.name + ": camara avisa em " + settings.cameraReportTime + " s (medido " + firstReport[0].ToString("0.00") + " e " + secondReport[0].ToString("0.00") + " s)");
+
+            // Perseguicao: o vigilante persegue a velocidade do nivel e nunca mais depressa.
+            float[] agentSpeed = new float[2], fastest = new float[2];
+            for (int repeat = 0; repeat < 2; repeat++)
+            {
+                guard.ResetGuard(guardSpot); guard.transform.rotation = Quaternion.Euler(0, 180, 0);
+                g.player.Teleport(new Vector3(24, .1f, 27), Quaternion.identity); Physics.SyncTransforms();
+                guard.enabled = true;
+                float until = Time.time + 1.2f;
+                while (Time.time < until) { if (guard.State == HeistGuard.Mode.Chase) fastest[repeat] = Mathf.Max(fastest[repeat], guard.Agent.velocity.magnitude); yield return null; }
+                agentSpeed[repeat] = guard.State == HeistGuard.Mode.Chase || fastest[repeat] > 0 ? guard.Agent.speed : -1;
+                guard.enabled = false;
+            }
+            guard.ResetGuard(guardSpot);
+            Check(agentSpeed[0] == settings.chaseSpeed && agentSpeed[1] == agentSpeed[0] && fastest.All(f => f > 0 && f <= settings.chaseSpeed + .01f),
+                "US18 RNF01 " + settings.name + ": perseguicao a " + settings.chaseSpeed + " m/s (maximo medido " + fastest[0].ToString("0.00") + " e " + fastest[1].ToString("0.00") + " m/s)");
             g.Show(HeistGame.Page.Pause); yield return null;
             Check(g.ui.pauseDifficulty.text.Contains(settings.name), "US18 Pausa mostra o nivel " + settings.name);
             g.Show(HeistGame.Page.Play);
@@ -132,11 +196,12 @@ public sealed class IssueAuditProbe : MonoBehaviour
         Check(JsonUtility.FromJson<HeistSnapshot>(File.ReadAllText(cp1)).difficulty == (int)hard, "US18 Checkpoint grava o nivel");
         g.SetDifficulty(easy);
         Check(g.LoadCheckpoint(1) && g.Level == hard && guard.visionRange == 18 && guard.powerReactionDelay == 1, "US18 Carregar checkpoint repoe o nivel e os valores");
+        Check(CamerasAt(.4f) && guard.chaseSpeed == 4.8f, "US18 Carregar checkpoint repoe camaras 0,4 s e perseguicao 4,8 m/s");
         g.SetDifficulty(easy); g.Show(HeistGame.Page.Menu); g.UI_Continue();
-        Check(g.Running && g.Level == hard && guard.visionRange == 18, "US18 Continuar mantem o nivel da partida");
+        Check(g.Running && g.Level == hard && guard.visionRange == 18 && CamerasAt(.4f) && guard.chaseSpeed == 4.8f, "US18 Continuar mantem o nivel da partida");
         g.SetDifficulty(normal); g.Show(HeistGame.Page.Menu); g.UI_OpenCheckpoints(); g.UI_Checkpoint(1);
         if (g.Current == HeistGame.Page.Confirm) g.AcceptConfirmation();
-        Check(g.Running && g.Level == hard && guard.powerReactionDelay == 1, "US18 Selecionar checkpoint mantem o nivel da partida");
+        Check(g.Running && g.Level == hard && guard.powerReactionDelay == 1 && CamerasAt(.4f) && guard.chaseSpeed == 4.8f, "US18 Selecionar checkpoint mantem o nivel da partida");
         g.Show(HeistGame.Page.Pause); g.RequestRestartCheckpoint(); g.AcceptConfirmation();
         Check(g.Running && g.Level == hard, "US18 Recomecar do checkpoint mantem o nivel");
         g.Show(HeistGame.Page.Pause); g.RequestRestartMission(); g.AcceptConfirmation(); guard.enabled = false;
@@ -146,7 +211,8 @@ public sealed class IssueAuditProbe : MonoBehaviour
         g.SaveCheckpoint(1);
         string json = File.ReadAllText(cp1);
         File.WriteAllText(cp1, Regex.Replace(json, @",\s*""difficulty""\s*:\s*\d+", ""));
-        Check(!File.ReadAllText(cp1).Contains("difficulty") && g.LoadCheckpoint(1) && g.Level == normal && guard.visionRange == 15 && guard.powerReactionDelay == 2,
+        Check(!File.ReadAllText(cp1).Contains("difficulty") && g.LoadCheckpoint(1) && g.Level == normal && guard.visionRange == 15 && guard.powerReactionDelay == 2
+            && CamerasAt(.7f) && guard.chaseSpeed == 4.3f,
             "US18 Gravacao antiga sem nivel carrega em Normal");
         var bad = JsonUtility.FromJson<HeistSnapshot>(json); bad.difficulty = 7; File.WriteAllText(cp1, JsonUtility.ToJson(bad));
         Check(!g.HasSave(1) && !g.LoadCheckpoint(1), "US18 Nivel desconhecido na gravacao e rejeitado");
@@ -288,7 +354,8 @@ public sealed class IssueAuditProbe : MonoBehaviour
         g = FindFirstObjectByType<HeistGame>();
         g.TestMode = true; g.player.ExternalInput = true; g.van.ExternalInput = true;
         // Valores do vigilante tal como estão na cena, antes de qualquer nível ser aplicado (referência do Normal).
-        sceneVision = g.guard.visionRange; sceneReaction = g.guard.powerReactionDelay;
+        sceneVision = g.guard.visionRange; sceneReaction = g.guard.powerReactionDelay; sceneChase = g.guard.chaseSpeed;
+        sceneCameraTimes = Cameras().Select(c => c.exposureToReport).ToArray();
         g.ClearProgress(); g.Begin(); g.guard.enabled = false;
         yield return null;
         Check(g.Checkpoint == 0 && !g.CaseRecovered && g.Objective.Contains("Estaciona"), "#13 Fase inicial coerente");

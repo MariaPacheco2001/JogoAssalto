@@ -27055,14 +27055,20 @@ MonoBehaviour:
     visionRange: 12
     powerReactionDelay: 3
     fullMap: 1
+    cameraReportTime: 1.2
+    chaseSpeed: 3.8
   - name: Normal
     visionRange: 15
     powerReactionDelay: 2
     fullMap: 0
+    cameraReportTime: 0.7
+    chaseSpeed: 4.3
   - name: "Dif\xEDcil"
     visionRange: 18
     powerReactionDelay: 1
     fullMap: 0
+    cameraReportTime: 0.4
+    chaseSpeed: 4.8
   player: {fileID: 1283404636}
   van: {fileID: 483375696}
   guard: {fileID: 1777836210}

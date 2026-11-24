@@ -257,6 +257,7 @@ namespace GolpeCalculado
             cabinYaw = 0;
             cabinPitch = 0;
             nextStepNoise = 0;
+            CancelPowerFailures();
             guard.ResetGuard(guardResetPosition);
             ApplyCircuits();
             Physics.SyncTransforms();

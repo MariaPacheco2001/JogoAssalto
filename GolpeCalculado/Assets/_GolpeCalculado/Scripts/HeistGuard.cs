@@ -29,6 +29,7 @@ namespace GolpeCalculado
         public float investigateTime = 14;
         public float searchTime = 18;
         [Tooltip("Tempo sem ver o jogador até passar de perseguição a procura.")] public float lostSightDelay = 1.1f;
+        [Tooltip("Tempo entre a falha de energia e o vigilante partir para o quadro. Ao chegar, volta a ligá-lo.")] public float powerReactionDelay = 2;
 
         public Mode State { get; private set; }
         public Vector3 LastKnown { get; private set; }
@@ -43,6 +44,9 @@ namespace GolpeCalculado
         // Prioridade dos avisos (GDD 3.4): visão direta > procura > câmara > alarme > ruído e falha elétrica.
         public const int NoisePriority = 1, PowerPriority = 1, AlarmPriority = 2, CameraPriority = 3, SearchPriority = 4;
         int currentPriority;
+
+        // Circuito cujo quadro está a investigar por causa de uma falha elétrica (-1 se nenhum).
+        public int PowerCircuit { get; private set; } = -1;
 
         bool Searching => State == Mode.Search || State == Mode.Investigate;
 
@@ -110,14 +114,23 @@ namespace GolpeCalculado
                 Agent.SetDestination(point.position);
         }
 
-        public void Investigate(Vector3 position, int priority)
+        // Falha elétrica: vai ao quadro e, se lá chegar sem passar a perseguição, volta a ligá-lo.
+        public void InvestigatePower(int circuit, Vector3 boardPosition)
+        {
+            if (Investigate(boardPosition, PowerPriority))
+                PowerCircuit = circuit;
+        }
+
+        // Devolve falso se o aviso foi ignorado (perseguição ou investigação mais importante).
+        public bool Investigate(Vector3 position, int priority)
         {
             if (State == Mode.Chase)
-                return;
+                return false;
             // Um aviso menos importante não interrompe uma investigação ou procura mais importante.
             if (Searching && priority < currentPriority)
-                return;
+                return false;
 
+            PowerCircuit = -1;
             currentPriority = priority;
             LastKnown = position;
             State = Mode.Investigate;
@@ -129,12 +142,14 @@ namespace GolpeCalculado
                 game.Say(priority == CameraPriority ? "Rádio: movimento no corredor. Vou verificar." : "Vigilante: ouvi qualquer coisa...");
                 lastVoice = Time.time;
             }
+            return true;
         }
 
         public void ResetGuard(Vector3 position)
         {
             State = Mode.Patrol;
             currentPriority = 0;
+            PowerCircuit = -1;
             nextPoint = 0;
             lostSight = 0;
             investigateUntil = 0;
@@ -165,6 +180,13 @@ namespace GolpeCalculado
                 UpdatePath();
             }
 
+            // Chegou ao quadro da falha elétrica: volta a ligá-lo e continua a investigar ali.
+            if (State == Mode.Investigate && PowerCircuit >= 0 && !Agent.pathPending && Agent.remainingDistance < 1)
+            {
+                game.RestoreCircuit(PowerCircuit);
+                PowerCircuit = -1;
+            }
+
             // Ao chegar ao sítio suspeito, olha à volta.
             if (Searching && Agent.remainingDistance < 1)
                 transform.Rotate(0, 30 * Time.deltaTime, 0);
@@ -183,6 +205,7 @@ namespace GolpeCalculado
                     game.Tone(240);
                 }
                 State = Mode.Chase;
+                PowerCircuit = -1;
                 LastKnown = game.player.transform.position;
                 lostSight = 0;
                 if (Vector3.Distance(transform.position, LastKnown) < catchDistance)

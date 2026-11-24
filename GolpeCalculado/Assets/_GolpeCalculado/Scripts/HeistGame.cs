@@ -255,19 +255,51 @@ namespace GolpeCalculado
             string zone = index == 0 ? "Corredor B" : "Oficina C";
             Discover("circuit" + index, "O quadro " + zone + " alimenta as luzes e a câmara dessa zona. Uma falha pode levar o vigilante ao quadro.");
 
-            // Uma falha de energia leva o vigilante ao quadro, dois segundos depois.
+            // Uma falha de energia leva o vigilante ao quadro, passado o tempo de reação dele.
             if (!Circuits[index])
             {
                 var board = Board(index);
                 if (board != null)
-                    StartCoroutine(InvestigatePower(board.transform.position));
+                {
+                    if (powerFailures[index] != null)
+                        StopCoroutine(powerFailures[index]);
+                    powerFailures[index] = StartCoroutine(InvestigatePower(index, board.transform.position));
+                }
             }
         }
 
-        IEnumerator InvestigatePower(Vector3 point)
+        // Falhas elétricas à espera do tempo de reação do vigilante, uma por circuito.
+        readonly Coroutine[] powerFailures = new Coroutine[2];
+
+        IEnumerator InvestigatePower(int circuit, Vector3 point)
         {
-            yield return new WaitForSeconds(2);
-            guard.Investigate(point, HeistGuard.PowerPriority);
+            yield return new WaitForSeconds(guard.powerReactionDelay);
+            powerFailures[circuit] = null;
+            guard.InvestigatePower(circuit, point);
+        }
+
+        // Um restauro de checkpoint ou novo jogo esquece as falhas que ainda não tinham chegado ao vigilante.
+        void CancelPowerFailures()
+        {
+            for (int i = 0; i < powerFailures.Length; i++)
+            {
+                if (powerFailures[i] != null)
+                    StopCoroutine(powerFailures[i]);
+                powerFailures[i] = null;
+            }
+        }
+
+        // O vigilante chegou ao quadro que investigava e volta a ligá-lo.
+        public void RestoreCircuit(int index)
+        {
+            if (Circuits[index])
+                return;
+            Circuits[index] = true;
+            ApplyCircuits();
+            Tone(380);
+            bool newNote = !Notes.ContainsKey("guardPower");
+            Discover("guardPower", "O vigilante volta a ligar os quadros que encontra desligados: cortar a energia só dá uma janela de tempo.");
+            Say(newNote ? "Vigilante: energia reposta. Nova pista no diário · J para consultar" : "Vigilante: energia reposta.");
         }
 
         // O que cada quadro liga está no Inspector do quadro (evento On Switched).

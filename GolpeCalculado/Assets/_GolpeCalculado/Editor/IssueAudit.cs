@@ -8,6 +8,7 @@ using GolpeCalculado;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.AI;
 
 [InitializeOnLoad]
 public static class IssueAudit
@@ -158,6 +159,30 @@ public sealed class IssueAuditProbe : MonoBehaviour
         g.Show(HeistGame.Page.Play);g.player.Teleport(new Vector3(36,.1f,34),Quaternion.identity);yield return new WaitForSeconds(1.5f);
         Check(g.guard.State==HeistGuard.Mode.Search&&Vector3.Distance(g.guard.LastKnown,g.player.transform.position)>5,
             "#50 Fuga por cobertura quebra visao e conserva ultima posicao");
+        // Falha eletrica: o vigilante vai ao quadro depois do tempo de reacao e religa-o.
+        g.guard.enabled=false;g.LoadCheckpoint(3);
+        float reaction=g.guard.powerReactionDelay;
+        var board0=g.Items.First(i=>i.kind==ItemKind.Power&&i.circuit==0);
+        NavMesh.SamplePosition(board0.transform.position,out var boardHit,4,NavMesh.AllAreas);
+        var boardLights=g.circuitBLights; var boardCameras=g.CamerasOnCircuit(0);
+        g.player.Teleport(g.hideout.position+Vector3.up*.1f,Quaternion.identity);
+        g.guard.ResetGuard(boardHit.position);g.guard.powerReactionDelay=1;g.guard.enabled=true;
+        g.ToggleCircuit(0);yield return new WaitForSeconds(.5f);
+        Check(!g.Circuits[0]&&g.guard.PowerCircuit==-1&&g.guard.State==HeistGuard.Mode.Patrol, "Quadro: vigilante espera o tempo de reacao configurado");
+        float powerLimit=Time.time+6; while(!g.Circuits[0]&&Time.time<powerLimit) yield return null;
+        yield return null; // o LED da camara atualiza no Update seguinte
+        Check(g.Circuits[0]&&boardLights.All(l=>l.enabled)&&boardCameras.All(c=>c.led.material.color!=Color.black)&&g.Notes.ContainsKey("guardPower"),
+            "Quadro: vigilante religa luzes e camara ao chegar e deixa pista");
+        g.guard.powerReactionDelay=reaction;
+        g.Circuits[0]=false;g.ApplyCircuits();g.guard.ResetGuard(boardHit.position);
+        g.guard.Investigate(boardHit.position,HeistGuard.NoisePriority);yield return new WaitForSeconds(1);
+        Check(!g.Circuits[0]&&g.guard.State==HeistGuard.Mode.Investigate, "Quadro: ruido junto ao quadro nao o religa");
+        g.guard.ResetGuard(new Vector3(24,.06f,34));g.guard.transform.rotation=Quaternion.Euler(0,180,0);
+        g.player.Teleport(new Vector3(24,.1f,29),Quaternion.identity);Physics.SyncTransforms();
+        g.guard.InvestigatePower(0,boardHit.position);yield return new WaitForSeconds(.4f);
+        Check(g.guard.State==HeistGuard.Mode.Chase&&g.guard.PowerCircuit==-1, "Quadro: ver o jogador a caminho cancela a religacao");
+        g.player.Teleport(g.hideout.position+Vector3.up*.1f,Quaternion.identity);g.guard.Agent.Warp(boardHit.position);yield return new WaitForSeconds(1.5f);
+        Check(!g.Circuits[0], "Quadro: depois da perseguicao o quadro continua desligado");
         g.guard.enabled=false;g.LoadCheckpoint(3);
         g.player.Teleport(g.van.transform.TransformPoint(new Vector3(0,0,-2.6f)),Quaternion.identity);
         Check(g.LoadCase()&&g.Objective.Contains("esconderijo"), "#13 Carga muda objetivo para regresso");

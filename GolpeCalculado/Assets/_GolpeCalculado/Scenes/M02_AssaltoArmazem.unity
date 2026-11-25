@@ -12070,7 +12070,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "O contacto quer a mala NC-17, guardada no arquivo de valores da log\xEDstica. Tens uma carrinha e a noite pela frente.\n\nO armaz\xE9m tem uma entrada de cargas e uma porta de servi\xE7o. O pessoal deixa documentos espalhados; as regras dos circuitos e dos c\xF3digos est\xE3o l\xE1, se souberes procurar.\n\nO vigilante reage ao que v\xEA e ouve. Se fores visto, foge e quebra a linha de vis\xE3o. A captura termina a tentativa.\n\nEntrega a mala no esconderijo onde come\xE7aste. O di\xE1rio (J) guarda o que descobrires."
+  m_Text: "O contacto quer a mala NC-17, guardada no arquivo de valores da log\xEDstica. Escolheu-te porque n\xE3o usas for\xE7a: estudas a seguran\xE7a at\xE9 perceberes como funciona. Tens uma carrinha e a noite pela frente.\n\nO armaz\xE9m tem uma entrada de cargas e uma porta de servi\xE7o. As c\xE2maras, os quadros el\xE9tricos e o vigilante est\xE3o ligados entre si de formas que ainda n\xE3o v\xEAs. Os documentos do pessoal e as rea\xE7\xF5es da seguran\xE7a s\xE3o as tuas pistas.\n\nO vigilante reage ao que v\xEA e ouve. Se fores visto, foge e quebra a linha de vis\xE3o. A captura termina a tentativa.\n\nEntrega a mala no esconderijo onde come\xE7aste. O di\xE1rio (J) guarda o que descobrires."
 --- !u!222 &664975681
 CanvasRenderer:
   m_ObjectHideFlags: 0

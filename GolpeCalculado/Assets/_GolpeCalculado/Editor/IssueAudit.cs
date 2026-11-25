@@ -38,7 +38,8 @@ public static class IssueAudit
     }
 }
 
-public sealed class IssueAuditProbe : MonoBehaviour
+// Os testes da US15 estao em IssueAuditOpcoes.cs.
+public sealed partial class IssueAuditProbe : MonoBehaviour
 {
     HeistGame g;
     readonly List<string> results = new List<string>();
@@ -249,11 +250,11 @@ public sealed class IssueAuditProbe : MonoBehaviour
             && z.mapImage != null && z.mapImage.transform.IsChildOf(g.ui.mapArea) && z.GetComponents<BoxCollider>().Length > 0 && z.GetComponents<BoxCollider>().All(b => b.isTrigger)),
             "US17 Sete zonas com nome, caixas trigger e imagem no mapa");
         Check(g.ui.mapArea.IsChildOf(g.ui.notes.transform) && g.ui.mapPlayer.parent == g.ui.mapArea, "US17 Mapa e marcador do jogador no ecra do diario (J)");
-        // A mensagem (ex.: "Checkpoint 1 guardado.") nao tapa nenhum botao dos ecras.
+        // A mensagem (ex.: "Checkpoint 1 guardado.") nao tapa nenhum botao nem controlo dos ecras (as listas abertas das Dropdown ficam de fora).
         g.Show(HeistGame.Page.Menu); yield return null;
         var messageRect = ScreenRect((RectTransform)g.ui.messagePanel.transform);
-        var covered = g.ui.screens.GetComponentsInChildren<Button>(true).Where(b => ScreenRect((RectTransform)b.transform).Overlaps(messageRect)).Select(b => b.transform.parent.name + "/" + b.name).ToArray();
-        Check(covered.Length == 0, "Mensagem nao tapa botoes dos ecras" + (covered.Length > 0 ? ": " + string.Join(", ", covered) : ""));
+        var covered = g.ui.screens.GetComponentsInChildren<Selectable>(true).Where(Visible).Where(b => ScreenRect((RectTransform)b.transform).Overlaps(messageRect)).Select(b => b.transform.parent.name + "/" + b.name).ToArray();
+        Check(covered.Length == 0, "Mensagem nao tapa botoes nem controlos dos ecras" + (covered.Length > 0 ? ": " + string.Join(", ", covered) : ""));
         // O centro de cada caixa pertence a essa zona e a mais nenhuma.
         bool exclusive = zones.All(z => z.GetComponents<BoxCollider>().All(b => zones.Count(o => o.Contains(b.bounds.center)) == 1 && z.Contains(b.bounds.center)));
         Check(exclusive, "US17 Zonas nao se sobrepoem");
@@ -607,6 +608,7 @@ public sealed class IssueAuditProbe : MonoBehaviour
         yield return Difficulty();
         yield return Map();
         yield return SecondGuard();
+        yield return Options();
         g.ClearProgress();
         var args=Environment.GetCommandLineArgs();int index=Array.IndexOf(args,"-issueAudit");
         File.WriteAllLines(args[index+1],results);

@@ -18,6 +18,8 @@ namespace GolpeCalculado
         public Text status; public GameObject vanPanel; public Text speed; public Text handbrake; public GameObject alarm;
         [Header("Mensagens")]
         public GameObject messagePanel; public Text message;
+        [Header("Legendas (HUD)")]
+        [Tooltip("Painel da legenda das falas do vigilante e do rádio, no HUD.")] public GameObject subtitlePanel; public Text subtitle;
         [Header("Menu e pausa")]
         public Button continueButton, selectCheckpointButton, pauseRestartCheckpointButton;
         public Text pauseObjective;
@@ -36,6 +38,8 @@ namespace GolpeCalculado
         public InputField pin;
         [Header("Opções")]
         public Slider volume, sensitivity, fieldOfView; public Toggle invertY;
+        public Slider effectsVolume, voiceVolume;
+        public Dropdown resolution, quality; public Toggle fullscreen, subtitles;
         [Header("Checkpoints")]
         public Button[] checkpointButtons=new Button[3];
         [Header("Confirmação e fim")]
@@ -61,6 +65,9 @@ namespace GolpeCalculado
             bool playing = Current == Page.Play;
             ui.hud.SetActive(playing);
             ui.screens.SetActive(!playing);
+            string subtitleText = playing ? Subtitle : "";
+            ui.subtitlePanel.SetActive(subtitleText.Length > 0);
+            ui.subtitle.text = subtitleText;
             if (playing)
                 RefreshHud();
             else if (Current == Page.Briefing)
@@ -183,10 +190,7 @@ namespace GolpeCalculado
                     ui.pin.ActivateInputField();
                     break;
                 case Page.Options:
-                    ui.volume.SetValueWithoutNotify(volume);
-                    ui.sensitivity.SetValueWithoutNotify(player.sensitivity);
-                    ui.fieldOfView.SetValueWithoutNotify(player.view.fieldOfView);
-                    ui.invertY.SetIsOnWithoutNotify(player.invertY);
+                    ShowOptions();
                     break;
                 case Page.Checkpoints:
                     for (int i = 0; i < 3; i++)
@@ -244,15 +248,7 @@ namespace GolpeCalculado
         public void UI_Cancel()=>CancelConfirmation();
         public void UI_RestartFromDefeat()=>LoadCheckpoint(LatestSave());
         public void UI_SubmitPin(){pin=ui.pin.text;SubmitPin(pin);ui.pin.SetTextWithoutNotify(pin);}
-        public void UI_SetVolume(float value){volume=value;AudioListener.volume=value;}
-        public void UI_SetSensitivity(float value)=>player.sensitivity=value;
-        public void UI_SetFieldOfView(float value)=>player.view.fieldOfView=value;
-        public void UI_SetInvertY(bool value)=>player.invertY=value;
-        public void UI_SaveOptions()
-        {
-            PlayerPrefs.SetFloat("volume",volume);PlayerPrefs.SetFloat("mouseSensitivity",player.sensitivity);
-            PlayerPrefs.SetInt("invertY",player.invertY?1:0);PlayerPrefs.SetFloat("fov",player.view.fieldOfView);PlayerPrefs.Save();Show(previous);
-        }
+        // As ações do ecrã de Opções estão em HeistOptions.
         public void UI_Quit()
         {
             #if UNITY_EDITOR

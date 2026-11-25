@@ -107,7 +107,6 @@ namespace GolpeCalculado
         float cabinYaw, cabinPitch;
         float nextStepNoise;
         Page previous = Page.Menu;
-        float volume = .7f;
 
         // Posição da mala na mão, à frente da câmara.
         static readonly Vector3 CarriedCaseOffset = new Vector3(.42f, -.55f, .9f);
@@ -138,11 +137,8 @@ namespace GolpeCalculado
             foreach (var item in Items)
                 item.Initialize();
 
-            volume = PlayerPrefs.GetFloat("volume", .7f);
-            AudioListener.volume = volume;
-            player.sensitivity = PlayerPrefs.GetFloat("mouseSensitivity", 2);
-            player.invertY = PlayerPrefs.GetInt("invertY", 0) == 1;
-            player.view.fieldOfView = PlayerPrefs.GetFloat("fov", 75);
+            // Opções do jogador (HeistOptions): lidas aqui e aplicadas no Start.
+            LoadOptions();
             Show(Page.Menu);
         }
 
@@ -151,6 +147,8 @@ namespace GolpeCalculado
             // Guarda o mundo tal como está na cena, para «Novo jogo» e «Recomeçar missão».
             initialState = CaptureSnapshot(0);
             ApplyCircuits();
+            // A mistura de áudio só aceita volumes a partir do Start.
+            ApplyOptions();
         }
 
         void OnDestroy()
@@ -323,7 +321,8 @@ namespace GolpeCalculado
             Tone(380);
             bool newNote = !Notes.ContainsKey("guardPower");
             Discover("guardPower", "O vigilante volta a ligar os quadros que encontra desligados: cortar a energia só dá uma janela de tempo.");
-            Say(newNote ? "Vigilante: energia reposta. Nova pista no diário · J para consultar" : "Vigilante: energia reposta.");
+            // A pista nova já foi anunciada pelo Discover; sem legenda nem voz, a fala junta-se a essa mensagem.
+            Speak("energiaReposta", newNote ? " Nova pista no diário · J para consultar" : "");
         }
 
         // O que cada quadro liga está no Inspector do quadro (evento On Switched).

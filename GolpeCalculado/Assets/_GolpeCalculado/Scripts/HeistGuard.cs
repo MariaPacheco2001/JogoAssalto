@@ -141,7 +141,7 @@ namespace GolpeCalculado
 
             if (Time.time - lastVoice > 4)
             {
-                game.Say(priority == CameraPriority ? "Rádio: movimento no corredor. Vou verificar." : "Vigilante: ouvi qualquer coisa...");
+                game.Speak(priority == CameraPriority ? "radioCorredor" : "ouvi");
                 lastVoice = Time.time;
             }
             return true;

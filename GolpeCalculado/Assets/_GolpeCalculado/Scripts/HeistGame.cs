@@ -40,6 +40,8 @@ namespace GolpeCalculado
         public int difficulty = 1;
         // Zonas do mapa do diário já reveladas (US17). Gravações antigas sem este campo carregam sem zonas.
         public string[] revealedZones = new string[0];
+        // Capturas da partida até este checkpoint. Gravações antigas sem este campo carregam com 0.
+        public int captures;
     }
 
     // Regras da missão: objetivos, inventário, pistas, circuitos, mala, carrinha e vitória.
@@ -585,6 +587,7 @@ namespace GolpeCalculado
         {
             if (Current != Page.Play || TestMode)
                 return;
+            Captures++;
             Show(Page.Defeat);
         }
 
@@ -698,6 +701,7 @@ namespace GolpeCalculado
                 SaveCheckpoint(1);
             if (Checkpoint < 2 && Has("officeKey") && Inside(checkpoint2Zone, p))
                 SaveCheckpoint(2);
+            CheckDarkCrouch();
 
             // Correr faz barulho.
             if (player.Body.velocity.magnitude > footstepNoiseSpeed && Time.time > nextStepNoise)

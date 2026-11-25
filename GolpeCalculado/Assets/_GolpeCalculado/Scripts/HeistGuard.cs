@@ -96,7 +96,8 @@ namespace GolpeCalculado
 
             // Agachado dentro do Corredor B às escuras (quadro B desligado), o vigilante vê muito menos.
             // Fora do Corredor B vale sempre o alcance normal do nível, mesmo agachado e sem luz.
-            bool hardToSee = player.IsCrouching && !game.Circuits[0] && game.InMapZone(DarkCorridorZone, player.transform.position);
+            // A mesma condição dá a pista "darkCrouch" no diário (HeistGame.CrouchedInDarkCorridor).
+            bool hardToSee = game.CrouchedInDarkCorridor;
             float range = hardToSee ? crouchDarkRange : visionRange;
             if (delta.magnitude > range || Vector3.Angle(transform.forward, flat) > visionAngle)
                 return false;

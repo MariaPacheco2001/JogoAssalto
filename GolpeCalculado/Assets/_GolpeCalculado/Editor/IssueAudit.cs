@@ -38,7 +38,7 @@ public static class IssueAudit
     }
 }
 
-// Os testes da US15 estao em IssueAuditOpcoes.cs.
+// Os testes da US15 estao em IssueAuditOpcoes.cs e os do resumo final em IssueAuditResumo.cs.
 public sealed partial class IssueAuditProbe : MonoBehaviour
 {
     HeistGame g;
@@ -647,6 +647,7 @@ public sealed partial class IssueAuditProbe : MonoBehaviour
         yield return Map();
         yield return SecondGuard();
         yield return Options();
+        yield return Summary();
         g.ClearProgress();
         var args=Environment.GetCommandLineArgs();int index=Array.IndexOf(args,"-issueAudit");
         File.WriteAllLines(args[index+1],results);

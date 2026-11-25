@@ -43,7 +43,7 @@ namespace GolpeCalculado
                 return false;
             if (s.circuits == null || s.circuits.Length != 2 || s.inventory == null || s.noteKeys == null || s.noteValues == null || s.items == null)
                 return false;
-            if (s.noteKeys.Length != s.noteValues.Length || s.items.Length != Items.Length || !Finite(s.seconds) || s.seconds < 0)
+            if (s.noteKeys.Length != s.noteValues.Length || s.items.Length != Items.Length || !Finite(s.seconds) || s.seconds < 0 || s.captures < 0)
                 return false;
             if (!ValidPosition(s.playerPosition) || !ValidPosition(s.vanPosition) || !ValidPosition(s.casePosition))
                 return false;
@@ -171,6 +171,7 @@ namespace GolpeCalculado
                 seconds = ActiveSeconds,
                 difficulty = (int)Level,
                 revealedZones = RevealedZones,
+                captures = Captures,
                 items = Items.Select(i => new ItemSnapshot { id = i.id, used = i.used, open = i.opened, position = i.transform.position }).ToArray()
             };
         }
@@ -256,7 +257,12 @@ namespace GolpeCalculado
             RestoreCase(s);
 
             Checkpoint = s.checkpoint;
-            ActiveSeconds = s.seconds;
+            // Tempo de jogo e capturas contam a partida inteira: voltar a um checkpoint (por exemplo, depois
+            // de uma captura) não os faz andar para trás. Um novo jogo (estado inicial, checkpoint 0) começa do zero.
+            // Os checkpoints em disco são sempre da partida atual, porque um novo jogo apaga-os.
+            bool newGame = s.checkpoint == 0;
+            ActiveSeconds = newGame ? s.seconds : Mathf.Max(ActiveSeconds, s.seconds);
+            Captures = newGame ? 0 : Mathf.Max(Captures, s.captures);
             cabinYaw = 0;
             cabinPitch = 0;
             nextStepNoise = 0;

@@ -44,6 +44,10 @@ namespace GolpeCalculado
         public Button[] checkpointButtons=new Button[3];
         [Header("Confirmação e fim")]
         public Text confirmBody; public Text endTitle; public Text endBody; public Button endRestartButton;
+        [Header("Resumo do sistema (só na vitória)")]
+        [Tooltip("Painel \"O sistema que descobriste\" no ecrã de vitória ou derrota. Fica escondido na derrota.")] public GameObject summaryPanel;
+        [Tooltip("Linha \"Descobriste X de 7 ligações\".")] public Text summaryCount;
+        [Tooltip("Lista das sete ligações: descobertas com ✔ e o texto do diário, as outras com ○ e uma explicação curta.")] public Text summaryList;
     }
 
     public sealed partial class HeistGame
@@ -214,9 +218,8 @@ namespace GolpeCalculado
             bool won = Current == Page.Victory;
             if (won)
             {
-                string time = TimeSpan.FromSeconds(ActiveSeconds).ToString(@"mm\:ss");
                 ui.endTitle.text = "Entrega confirmada.";
-                ui.endBody.text = "A mala NC-17 chegou ao esconderijo. O contrato está concluído.\nTempo ativo: " + time;
+                ui.endBody.text = "A mala NC-17 chegou ao esconderijo. O contrato está concluído.\n\nTempo de jogo: " + PlayTime + "\nCapturas: " + Captures;
             }
             else
             {
@@ -225,6 +228,7 @@ namespace GolpeCalculado
             }
             ui.endRestartButton.gameObject.SetActive(!won);
             ui.endRestartButton.interactable = latestSave > 0;
+            ShowSystemSummary(won);
         }
 
         // Ações dos botões (ligadas no Inspector, em On Click).

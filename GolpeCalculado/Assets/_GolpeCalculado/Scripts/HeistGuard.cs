@@ -16,7 +16,7 @@ namespace GolpeCalculado
 
         [Header("Visão")]
         [Tooltip("Alcance da visão em metros.")] public float visionRange = 15;
-        [Tooltip("Alcance quando o jogador está agachado e o Corredor B está às escuras.")] public float crouchDarkRange = 6;
+        [Tooltip("Alcance quando o jogador está agachado dentro do Corredor B e o quadro B está desligado. Noutros sítios vale sempre o alcance normal.")] public float crouchDarkRange = 6;
         [Tooltip("Meio ângulo do cone de visão, em graus.")] public float visionAngle = 55;
         [Tooltip("A esta distância (na horizontal) sente o jogador em qualquer direção, mesmo fora do cone.")] public float proximityRange = 1;
         public float eyeHeight = 1.55f;
@@ -32,6 +32,9 @@ namespace GolpeCalculado
         public float searchTime = 18;
         [Tooltip("Tempo sem ver o jogador até passar de perseguição a procura.")] public float lostSightDelay = 1.1f;
         [Tooltip("Tempo entre a falha de energia e o vigilante partir para o quadro. Ao chegar, volta a ligá-lo.")] public float powerReactionDelay = 2;
+
+        // Zona do mapa (MapZone "Zona Corredor B") onde agachar às escuras ajuda.
+        public const string DarkCorridorZone = "corredorB";
 
         public Mode State { get; private set; }
         public Vector3 LastKnown { get; private set; }
@@ -91,8 +94,9 @@ namespace GolpeCalculado
             if (flat.magnitude < proximityRange)
                 return NothingBetween(origin, target);
 
-            // Agachado e com o Corredor B às escuras, o vigilante vê muito menos.
-            bool hardToSee = player.IsCrouching && !game.Circuits[0];
+            // Agachado dentro do Corredor B às escuras (quadro B desligado), o vigilante vê muito menos.
+            // Fora do Corredor B vale sempre o alcance normal do nível, mesmo agachado e sem luz.
+            bool hardToSee = player.IsCrouching && !game.Circuits[0] && game.InMapZone(DarkCorridorZone, player.transform.position);
             float range = hardToSee ? crouchDarkRange : visionRange;
             if (delta.magnitude > range || Vector3.Angle(transform.forward, flat) > visionAngle)
                 return false;

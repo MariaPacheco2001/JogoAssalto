@@ -25,6 +25,12 @@ namespace GolpeCalculado
 
         public string[] RevealedZones => mapZones.Where(z => z != null && revealedZones.Contains(z.id)).Select(z => z.id).ToArray();
 
+        // Verdadeiro se o ponto está dentro da zona com este id (falso se a zona não existir na cena).
+        public bool InMapZone(string zoneId, Vector3 point)
+        {
+            return mapZones.Any(z => z != null && z.id == zoneId && z.Contains(point));
+        }
+
         // O ponto que conta para o mapa: o jogador a pé ou a carrinha quando está a conduzir.
         public Vector3 MapPosition => InVan ? van.transform.position : player.transform.position;
 

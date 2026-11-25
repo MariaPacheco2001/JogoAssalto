@@ -174,6 +174,33 @@ public sealed partial class IssueAuditProbe : MonoBehaviour
                 Check(same && seen == expected[d], "US18 RNF01 " + settings.name + ": jogador a " + distances[d] + " m " + (expected[d] ? "visto" : "nao visto") + " sempre");
             }
 
+            // Agachar no escuro: so dentro do Corredor B (zona do mapa) e com o quadro B desligado.
+            foreach (var watcher in g.Guards.ToArray())
+            {
+                string who = watcher == guard ? "" : " (segundo vigilante)";
+                bool watcherWasEnabled = watcher.enabled; var watcherRotation = watcher.transform.rotation; var watcherPosition = watcher.transform.position;
+                watcher.enabled = false;
+                g.Circuits[0] = false; g.ApplyCircuits();
+                Vector3 near = new Vector3(24, .1f, 34 - 5.5f), far = new Vector3(24, .1f, 34 - 6.5f);
+                bool nearSeen = Sees(watcher, guardSpot, near, true), farSeen = Sees(watcher, guardSpot, far, true);
+                bool standingSeen = Sees(watcher, guardSpot, far, false);
+                g.Circuits[0] = true; g.ApplyCircuits();
+                bool litSeen = Sees(watcher, guardSpot, far, true);
+                g.Circuits[0] = false; g.ApplyCircuits();
+                Check(g.InMapZone(HeistGuard.DarkCorridorZone, near) && g.InMapZone(HeistGuard.DarkCorridorZone, far) && nearSeen && !farSeen && standingSeen && litSeen,
+                    "Agachar no escuro " + settings.name + who + ": no Corredor B com o quadro B desligado so e visto a 6 m (5,5 m visto, 6,5 m nao; de pe ou com luz visto)");
+
+                // Fora do Corredor B (no cais, logo a sul): alcance normal do nivel, mesmo agachado e sem luz.
+                Vector3 eye = new Vector3(24, .06f, 30);
+                Vector3 inside = new Vector3(24, .1f, 30 - (settings.visionRange - .5f)), beyond = new Vector3(24, .1f, 30 - (settings.visionRange + 1));
+                bool insideSeen = Sees(watcher, eye, inside, true), beyondSeen = Sees(watcher, eye, beyond, true);
+                Check(!g.InMapZone(HeistGuard.DarkCorridorZone, inside) && !g.InMapZone(HeistGuard.DarkCorridorZone, beyond) && insideSeen && !beyondSeen,
+                    "Agachar no escuro " + settings.name + who + ": fora do Corredor B, agachado e com o quadro B desligado, visto ate " + settings.visionRange + " m");
+
+                SetCrouch(g.player, false); g.Circuits[0] = true; g.ApplyCircuits();
+                watcher.ResetGuard(watcherPosition); watcher.transform.rotation = watcherRotation; watcher.enabled = watcherWasEnabled;
+            }
+
             // Falha eletrica: o vigilante parte para o quadro passado o tempo do nivel, sempre igual.
             g.player.Teleport(g.hideout.position + Vector3.up * .1f, Quaternion.identity);
             float first = -1; bool repeatable = true;
@@ -369,6 +396,17 @@ public sealed partial class IssueAuditProbe : MonoBehaviour
             if (!NavMesh.CalculatePath(a.position, b.position, NavMesh.AllAreas, path) || path.status != NavMeshPathStatus.PathComplete) broken.Add(i + ">" + (i + 1) % points.Length);
         }
         return broken.Count == 0;
+    }
+    // Poe o vigilante no sitio (virado para sul) e o jogador agachado ou de pe no ponto, e diz se o ve.
+    bool Sees(HeistGuard watcher, Vector3 watcherSpot, Vector3 playerSpot, bool crouching)
+    {
+        watcher.ResetGuard(watcherSpot); watcher.transform.rotation = Quaternion.Euler(0, 180, 0);
+        g.player.Teleport(playerSpot, Quaternion.identity); SetCrouch(g.player, crouching); Physics.SyncTransforms();
+        return watcher.SeesPlayer();
+    }
+    static void SetCrouch(PlayerMotor player, bool crouching)
+    {
+        typeof(PlayerMotor).GetProperty("IsCrouching").GetSetMethod(true).Invoke(player, new object[] { crouching });
     }
     IEnumerator SecondGuard()
     {

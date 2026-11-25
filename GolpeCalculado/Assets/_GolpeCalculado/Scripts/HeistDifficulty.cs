@@ -51,13 +51,25 @@ namespace GolpeCalculado
             ApplyDifficulty();
         }
 
-        // Passa os valores do nível para o vigilante e para todas as câmaras. Chamado em cada novo jogo e restauro de checkpoint.
+        // Passa os valores do nível para os vigilantes e para todas as câmaras. Chamado em cada novo jogo e restauro de checkpoint.
         void ApplyDifficulty()
         {
             var settings = LevelSettings;
-            guard.visionRange = settings.visionRange;
-            guard.powerReactionDelay = settings.powerReactionDelay;
-            guard.chaseSpeed = Mathf.Min(settings.chaseSpeed, MaxChaseSpeed);
+            bool hard = Level == Difficulty.Hard;
+
+            // No Difícil entra o segundo vigilante; os dois usam os mesmos valores.
+            if (secondGuard != null)
+                secondGuard.gameObject.SetActive(hard);
+            foreach (var g in Guards)
+            {
+                g.visionRange = settings.visionRange;
+                g.powerReactionDelay = settings.powerReactionDelay;
+                g.chaseSpeed = Mathf.Min(settings.chaseSpeed, MaxChaseSpeed);
+            }
+
+            // Aspeto que muda com o nível (carrinha do Difícil).
+            foreach (var visual in FindObjectsByType<DifficultyVisual>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                visual.Apply(hard);
             foreach (var camera in FindObjectsByType<HeistCamera>(FindObjectsInactive.Include, FindObjectsSortMode.None))
                 camera.exposureToReport = settings.cameraReportTime;
         }

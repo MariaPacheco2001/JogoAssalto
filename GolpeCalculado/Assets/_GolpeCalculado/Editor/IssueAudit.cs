@@ -348,6 +348,107 @@ public sealed class IssueAuditProbe : MonoBehaviour
         Check(OnlyRevealed("patio"), "US17 Dificil: mapa a revelar como no Normal");
         g.ClearProgress();
     }
+    // US16 (Difícil): segundo vigilante animado e carrinha nova; Fácil e Normal com os originais.
+    MeshRenderer Plate => Item("loadVan").GetComponent<MeshRenderer>();
+    bool VanLooks(bool hard)
+    {
+        var v = g.van.GetComponent<DifficultyVisual>();
+        return v != null && v.easyNormal.Length == 5 && v.hard.Length == 5 && v.easyNormal[0].name == "Aspeto original" && v.hard[0].name == "Aspeto Difícil (Kenney)"
+            && v.hard[0].transform.Find("Modelo carrinha") != null
+            && v.easyNormal.All(o => o.activeInHierarchy != hard) && v.hard.All(o => o.activeInHierarchy == hard) && Plate.enabled != hard;
+    }
+    // Caminho completo entre pontos seguidos da ronda (com loop, inclui o fecho do ciclo).
+    static bool Legs(Vector3[] points, bool loop, List<string> broken)
+    {
+        int count = loop ? points.Length : points.Length - 1;
+        for (int i = 0; i < count; i++)
+        {
+            var path = new NavMeshPath();
+            NavMesh.SamplePosition(points[i], out var a, 4, NavMesh.AllAreas); NavMesh.SamplePosition(points[(i + 1) % points.Length], out var b, 4, NavMesh.AllAreas);
+            if (!NavMesh.CalculatePath(a.position, b.position, NavMesh.AllAreas, path) || path.status != NavMeshPathStatus.PathComplete) broken.Add(i + ">" + (i + 1) % points.Length);
+        }
+        return broken.Count == 0;
+    }
+    IEnumerator SecondGuard()
+    {
+        var second = g.secondGuard;
+        Check(second != null && second != g.guard && second.game == g && second.GetComponent<GuardAnimator>() != null && g.guard.GetComponent<GuardAnimator>() == null
+            && second.indicator != null && second.indicator.transform.IsChildOf(second.transform) && g.guard.indicator.transform.parent == g.guard.transform,
+            "US16 Segundo vigilante animado (GuardAnimator) com indicador proprio; o original volta a ser o de pecas simples");
+        Check(second.visionAngle == g.guard.visionAngle && second.patrolSpeed == g.guard.patrolSpeed && second.catchDistance == g.guard.catchDistance && second.investigateSpeed == g.guard.investigateSpeed,
+            "US16 Segundo vigilante com os mesmos valores do original");
+        for (int level = 0; level < 3; level++)
+        {
+            bool hard = level == 2;
+            NewGame((HeistGame.Difficulty)level); yield return null;
+            Check(second.gameObject.activeSelf == hard && g.guard.gameObject.activeSelf && g.Guards.Count() == (hard ? 2 : 1),
+                "US16 " + g.LevelSettings.name + ": segundo vigilante " + (hard ? "ativo" : "inativo") + ", original sempre ativo");
+            Check(VanLooks(hard), "US16 " + g.LevelSettings.name + ": carrinha " + (hard ? "nova (Kenney)" : "original") + " e placa " + (hard ? "escondida" : "visivel"));
+            if (hard)
+                Check(second.visionRange == 18 && second.powerReactionDelay == 1 && second.chaseSpeed == 4.8f && second.State == HeistGuard.Mode.Patrol
+                    && Vector3.Distance(second.transform.position, g.secondGuardResetPosition) < .2f && !second.SeesPlayer(),
+                    "US16 Dificil: segundo vigilante com os valores do nivel, no inicio da ronda e sem ver o jogador no arranque");
+        }
+
+        // Checkpoints: o nivel gravado decide o segundo vigilante e o aspeto.
+        NewGame(HeistGame.Difficulty.Hard); g.SaveCheckpoint(1);
+        g.SetDifficulty(HeistGame.Difficulty.Normal);
+        Check(!second.gameObject.activeSelf && VanLooks(false), "US16 Mudar para Normal desliga o segundo vigilante e repoe a carrinha original");
+        Check(g.LoadCheckpoint(1) && g.Level == HeistGame.Difficulty.Hard && second.gameObject.activeSelf && second.State == HeistGuard.Mode.Patrol
+            && Vector3.Distance(second.transform.position, g.secondGuardResetPosition) < .2f && VanLooks(true),
+            "US16 Carregar checkpoint do Dificil: segundo vigilante ativo no inicio da ronda e carrinha nova");
+        g.SetDifficulty(HeistGame.Difficulty.Easy); g.Show(HeistGame.Page.Menu); g.UI_Continue();
+        Check(g.Running && second.gameObject.activeSelf && VanLooks(true), "US16 Continuar uma partida no Dificil mantem o segundo vigilante");
+        NewGame(HeistGame.Difficulty.Normal); g.SaveCheckpoint(1); g.SetDifficulty(HeistGame.Difficulty.Hard);
+        Check(g.LoadCheckpoint(1) && !second.gameObject.activeSelf && VanLooks(false), "US16 Carregar checkpoint do Normal: sem segundo vigilante e carrinha original");
+
+        // Ronda: com as entradas abertas todos os trocos fecham; com as portas fechadas fica no patio.
+        NewGame(HeistGame.Difficulty.Hard); yield return new WaitForSeconds(1);
+        var points = second.patrol.Select(p => p.position).ToArray();
+        var outside = second.patrol.Where(p => p.name.Contains("pátio")).Select(p => p.position).ToArray();
+        var brokenClosed = new List<string>();
+        bool patioOnly = Legs(outside, true, brokenClosed);
+        NavMesh.SamplePosition(outside[0], out var patioPoint, 4, NavMesh.AllAreas); NavMesh.SamplePosition(points.First(p => !outside.Contains(p)), out var insidePoint, 4, NavMesh.AllAreas);
+        var blocked = new NavMeshPath(); NavMesh.CalculatePath(patioPoint.position, insidePoint.position, NavMesh.AllAreas, blocked);
+        Check(second.patrol.Length == 9 && outside.Length == 4 && second.skipUnreachablePoints && !g.guard.skipUnreachablePoints && patioOnly && blocked.status != NavMeshPathStatus.PathComplete,
+            "US16 Portas fechadas: ronda do segundo vigilante fica no patio (4 pontos ligados" + (brokenClosed.Count > 0 ? ", falha " + string.Join(" ", brokenClosed) : "") + ")");
+        Item("loadingDoor").SetOpen(true, false); Item("serviceDoor").SetOpen(true, false);
+        yield return new WaitForSeconds(1);
+        var broken = new List<string>();
+        Check(Legs(points, true, broken), "US16 Entradas abertas: os 9 trocos da ronda do segundo vigilante (com o fecho) ficam completos" + (broken.Count > 0 ? ", falha " + string.Join(" ", broken) : ""));
+        var brokenOne = new List<string>();
+        Item("serviceDoor").SetOpen(false, false); yield return new WaitForSeconds(1);
+        Check(Legs(points, true, brokenOne), "US16 So com o portao aberto a ronda tambem fecha (entra e sai pelo portao)" + (brokenOne.Count > 0 ? ", falha " + string.Join(" ", brokenOne) : ""));
+
+        // Ruido perto do segundo vigilante: vai investigar; o original, longe, nao.
+        NewGame(HeistGame.Difficulty.Hard); second.enabled = false;
+        var spot = new Vector3(10.75f, .06f, 22); var noise = new Vector3(10.75f, .1f, 26);
+        second.ResetGuard(spot); g.guard.ResetGuard(new Vector3(24, .06f, 34));
+        g.Noise(noise, 12);
+        Check(second.State == HeistGuard.Mode.Investigate && Vector3.Distance(second.LastKnown, noise) < .1f && g.guard.State == HeistGuard.Mode.Patrol,
+            "US16 Dificil: ruido perto do segundo vigilante poe-no a investigar (o original, longe, continua a ronda)");
+
+        // Falha eletrica: vai o vigilante mais perto do quadro.
+        var board = g.Items.First(i => i.kind == ItemKind.Power && i.circuit == 0);
+        NavMesh.SamplePosition(board.transform.position, out var boardHit, 4, NavMesh.AllAreas);
+        g.player.Teleport(g.hideout.position + Vector3.up * .1f, Quaternion.identity);
+        second.ResetGuard(boardHit.position); g.guard.ResetGuard(new Vector3(49, .06f, 14));
+        g.ToggleCircuit(0); float limit = Time.time + 3;
+        while (second.PowerCircuit != 0 && Time.time < limit) yield return null;
+        Check(second.PowerCircuit == 0 && g.guard.PowerCircuit == -1, "US16 Dificil: falha eletrica vai ao vigilante mais perto do quadro (o segundo)");
+        g.Circuits[0] = true; g.ApplyCircuits();
+
+        // Captura pelo segundo vigilante da derrota (fora do modo de teste).
+        NewGame(HeistGame.Difficulty.Hard);
+        second.ResetGuard(spot); second.transform.rotation = Quaternion.identity; g.guard.ResetGuard(new Vector3(24, .06f, 34));
+        g.player.Teleport(spot + new Vector3(0, .05f, .8f), Quaternion.identity); Physics.SyncTransforms();
+        g.TestMode = false; second.enabled = true;
+        float until = Time.realtimeSinceStartup + 1;
+        while (g.Current != HeistGame.Page.Defeat && Time.realtimeSinceStartup < until) yield return null;
+        g.TestMode = true;
+        Check(g.Current == HeistGame.Page.Defeat && Time.timeScale == 0, "US16 Dificil: captura pelo segundo vigilante da derrota");
+        g.ClearProgress();
+    }
     IEnumerator Start()
     {
         yield return null;
@@ -505,6 +606,7 @@ public sealed class IssueAuditProbe : MonoBehaviour
         g.Begin();Check(g.Notes.Count==0&&!g.CaseRecovered&&g.Objective.Contains("Estaciona"), "#13 #54 Reinicio repoe fase inicial e diario sem solucoes");
         yield return Difficulty();
         yield return Map();
+        yield return SecondGuard();
         g.ClearProgress();
         var args=Environment.GetCommandLineArgs();int index=Array.IndexOf(args,"-issueAudit");
         File.WriteAllLines(args[index+1],results);

@@ -11,6 +11,8 @@ namespace GolpeCalculado
         public HeistGame game;
         public Transform[] patrol;
         public Renderer indicator;
+        [Tooltip("Salta os pontos da ronda a que não consegue chegar (por exemplo, atrás de uma porta fechada). Usado pelo segundo vigilante, que só entra no armazém com uma entrada aberta.")]
+        public bool skipUnreachablePoints;
 
         [Header("Visão")]
         [Tooltip("Alcance da visão em metros.")] public float visionRange = 15;
@@ -232,7 +234,7 @@ namespace GolpeCalculado
             }
             else if (State == Mode.Patrol && !Agent.pathPending && Agent.remainingDistance < .8f)
             {
-                nextPoint = (nextPoint + 1) % patrol.Length;
+                nextPoint = NextPatrolPoint(nextPoint);
                 Go(patrol[nextPoint].position);
             }
             else if (Searching && Time.time > investigateUntil)
@@ -242,6 +244,25 @@ namespace GolpeCalculado
                 currentPriority = 0;
                 Go(patrol[nextPoint].position);
             }
+        }
+
+        // Ponto seguinte da ronda. Com skipUnreachablePoints, passa à frente os que não têm caminho completo.
+        int NextPatrolPoint(int from)
+        {
+            int next = (from + 1) % patrol.Length;
+            if (!skipUnreachablePoints)
+                return next;
+            for (int i = 0; i < patrol.Length; i++, next = (next + 1) % patrol.Length)
+                if (Reachable(patrol[next].position))
+                    return next;
+            return (from + 1) % patrol.Length;
+        }
+
+        bool Reachable(Vector3 destination)
+        {
+            var path = new NavMeshPath();
+            return NavMesh.SamplePosition(destination, out var point, 4, NavMesh.AllAreas)
+                && Agent.CalculatePath(point.position, path) && path.status == NavMeshPathStatus.PathComplete;
         }
     }
 }

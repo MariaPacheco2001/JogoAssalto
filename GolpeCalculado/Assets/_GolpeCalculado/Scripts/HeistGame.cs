@@ -52,10 +52,12 @@ namespace GolpeCalculado
         public PlayerMotor player;
         public VanMotor van;
         public HeistGuard guard;
+        [Tooltip("Segundo vigilante, só no nível Difícil. Nos outros níveis fica desativado.")] public HeistGuard secondGuard;
         public HeistItem caseItem, vaultDoor;
         public Transform hideout;
         public Light[] alarmLights;
         public Vector3 guardResetPosition;
+        public Vector3 secondGuardResetPosition;
 
         [Header("Cofre e checkpoints")]
         [Tooltip("Código do terminal do arquivo (TURNO + CAIS + DIA).")] public string vaultCode = "020713";
@@ -241,11 +243,29 @@ namespace GolpeCalculado
             effects.PlayOneShot(sound.clip, effectsVolume);
         }
 
-        // Um ruído atrai o vigilante se ele estiver dentro do alcance.
+        // Vigilantes em jogo: o segundo só está ativo no Difícil.
+        public IEnumerable<HeistGuard> Guards
+        {
+            get
+            {
+                yield return guard;
+                if (secondGuard != null && secondGuard.gameObject.activeInHierarchy)
+                    yield return secondGuard;
+            }
+        }
+
+        // O vigilante mais perto de um ponto (com um só vigilante, é sempre ele).
+        public HeistGuard NearestGuard(Vector3 position)
+        {
+            return Guards.OrderBy(g => Vector3.Distance(g.transform.position, position)).First();
+        }
+
+        // Um ruído atrai cada vigilante que estiver dentro do alcance.
         public void Noise(Vector3 position, float range)
         {
-            if (Vector3.Distance(guard.transform.position, position) < range)
-                guard.Investigate(position, HeistGuard.NoisePriority);
+            foreach (var g in Guards)
+                if (Vector3.Distance(g.transform.position, position) < range)
+                    g.Investigate(position, HeistGuard.NoisePriority);
         }
 
         // ---------- Circuitos e alarme ----------
@@ -279,7 +299,7 @@ namespace GolpeCalculado
         {
             yield return new WaitForSeconds(guard.powerReactionDelay);
             powerFailures[circuit] = null;
-            guard.InvestigatePower(circuit, point);
+            NearestGuard(point).InvestigatePower(circuit, point);
         }
 
         // Um restauro de checkpoint ou novo jogo esquece as falhas que ainda não tinham chegado ao vigilante.
@@ -349,7 +369,7 @@ namespace GolpeCalculado
             if (value)
             {
                 Tone(250);
-                guard.Investigate(caseItem.transform.position, HeistGuard.AlarmPriority);
+                NearestGuard(caseItem.transform.position).Investigate(caseItem.transform.position, HeistGuard.AlarmPriority);
                 Say("Alarme de reserva ativo. Procura cobertura e prepara a saída.");
             }
         }

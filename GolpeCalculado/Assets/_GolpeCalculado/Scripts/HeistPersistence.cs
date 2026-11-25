@@ -264,6 +264,8 @@ namespace GolpeCalculado
             ApplyDifficulty();
             RestoreMap(s.revealedZones);
             guard.ResetGuard(guardResetPosition);
+            if (secondGuard != null && secondGuard.gameObject.activeInHierarchy)
+                secondGuard.ResetGuard(secondGuardResetPosition);
             ApplyCircuits();
             Physics.SyncTransforms();
         }
